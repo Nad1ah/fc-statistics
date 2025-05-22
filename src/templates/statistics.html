@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estatísticas Históricas - FC Statistics</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for("static", filename="css/style.css") }}">
+</head>
+<body>
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="logo-text">FC Statistics</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/relatorios">Relatórios Diários</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Análise de Mercados
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=gols">Golos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=vencedor">Vencedor</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cantos">Cantos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cartoes">Cartões</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/comparacao-odds">Comparação de Odds</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/estatisticas">Estatísticas Históricas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sobre">Sobre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link telegram-link" href="#" target="_blank">
+                            <i class="fab fa-telegram"></i> Canal Telegram
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container mt-4">
+        <!-- Cabeçalho da Página -->
+        <div class="page-header">
+            <h1>Estatísticas Históricas</h1>
+            <p class="lead">Explore dados históricos detalhados de equipas, ligas e mercados.</p>
+        </div>
+
+        <!-- Filtros Avançados -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="league-filter" class="form-label">Liga:</label>
+                        <select id="league-filter" class="form-select">
+                            <option value="all">Todas as Ligas</option>
+                            <option value="premier-league">Premier League</option>
+                            <option value="la-liga">La Liga</option>
+                            <option value="serie-a">Serie A</option>
+                            <option value="bundesliga">Bundesliga</option>
+                            <option value="ligue-1">Ligue 1</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="season-filter" class="form-label">Temporada:</label>
+                        <select id="season-filter" class="form-select">
+                            <option value="2024-2025">2024/2025</option>
+                            <option value="2023-2024">2023/2024</option>
+                            <option value="2022-2023">2022/2023</option>
+                            <option value="2021-2022">2021/2022</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="team-filter" class="form-label">Equipa:</label>
+                        <select id="team-filter" class="form-select">
+                            <option value="all">Todas as Equipas</option>
+                            <option value="manchester-city">Manchester City</option>
+                            <option value="liverpool">Liverpool</option>
+                            <option value="barcelona">Barcelona</option>
+                            <option value="real-madrid">Real Madrid</option>
+                            <option value="juventus">Juventus</option>
+                            <option value="inter">Inter</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="market-filter" class="form-label">Mercado:</label>
+                        <select id="market-filter" class="form-select">
+                            <option value="all">Todos os Mercados</option>
+                            <option value="1x2">Resultado Final (1X2)</option>
+                            <option value="over-under">Over/Under Golos</option>
+                            <option value="btts">Ambas Marcam</option>
+                            <option value="corners">Cantos</option>
+                            <option value="cards">Cartões</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 d-flex justify-content-end">
+                    <button id="apply-filters" class="btn btn-primary">Aplicar Filtros</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Estatísticas -->
+        <div class="stats-table-section mt-4">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Equipa</th>
+                            <th>Liga</th>
+                            <th>Temporada</th>
+                            <th>Jogos</th>
+                            <th>Vitórias</th>
+                            <th>Empates</th>
+                            <th>Derrotas</th>
+                            <th>Golos Marcados</th>
+                            <th>Golos Sofridos</th>
+                            <th>Média Golos</th>
+                            <th>Média Cantos</th>
+                            <th>Média Cartões</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-table-body">
+                        <!-- Dados serão carregados via JavaScript -->
+                        <tr>
+                            <td>Manchester City</td>
+                            <td>Premier League</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>7</td>
+                            <td>2</td>
+                            <td>1</td>
+                            <td>22</td>
+                            <td>8</td>
+                            <td>3.0</td>
+                            <td>7.5</td>
+                            <td>1.8</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Liverpool</td>
+                            <td>Premier League</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>6</td>
+                            <td>3</td>
+                            <td>1</td>
+                            <td>18</td>
+                            <td>7</td>
+                            <td>2.5</td>
+                            <td>7.8</td>
+                            <td>1.9</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Barcelona</td>
+                            <td>La Liga</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>6</td>
+                            <td>2</td>
+                            <td>2</td>
+                            <td>19</td>
+                            <td>9</td>
+                            <td>2.8</td>
+                            <td>6.5</td>
+                            <td>2.0</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Real Madrid</td>
+                            <td>La Liga</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>7</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>21</td>
+                            <td>10</td>
+                            <td>3.1</td>
+                            <td>6.7</td>
+                            <td>1.7</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Juventus</td>
+                            <td>Serie A</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>1</td>
+                            <td>15</td>
+                            <td>6</td>
+                            <td>2.1</td>
+                            <td>5.7</td>
+                            <td>2.1</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Inter</td>
+                            <td>Serie A</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>6</td>
+                            <td>2</td>
+                            <td>2</td>
+                            <td>17</td>
+                            <td>8</td>
+                            <td>2.5</td>
+                            <td>5.8</td>
+                            <td>2.2</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Bayern Munich</td>
+                            <td>Bundesliga</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>8</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>30</td>
+                            <td>9</td>
+                            <td>3.9</td>
+                            <td>6.3</td>
+                            <td>1.5</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>PSG</td>
+                            <td>Ligue 1</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>7</td>
+                            <td>2</td>
+                            <td>1</td>
+                            <td>25</td>
+                            <td>7</td>
+                            <td>3.2</td>
+                            <td>5.9</td>
+                            <td>1.6</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Paginação -->
+            <div class="pagination-container mt-3 d-flex justify-content-center">
+                <nav aria-label="Navegação de páginas">
+                    <ul class="pagination">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Próxima</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Gráficos de Tendências -->
+        <div class="trends-charts-section mt-5">
+            <h2>Gráficos de Tendências</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <h3>Média de Golos por Temporada</h3>
+                        <div class="chart-container">
+                            <canvas id="goalsTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <h3>Média de Cantos por Temporada</h3>
+                        <div class="chart-container">
+                            <canvas id="cornersTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>FC Statistics</h4>
+                    <p>Análises estatísticas para apostas desportivas de futebol.</p>
+                    <div class="social-links">
+                        <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h4>Links Rápidos</h4>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/relatorios">Relatórios Diários</a></li>
+                        <li><a href="/analise-mercados">Análise de Mercados</a></li>
+                        <li><a href="/comparacao-odds">Comparação de Odds</a></li>
+                        <li><a href="/estatisticas">Estatísticas Históricas</a></li>
+                        <li><a href="/sobre">Sobre</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4>Aviso Legal</h4>
+                    <p>As análises e sugestões apresentadas são baseadas em dados estatísticos e não garantem resultados. Aposte com responsabilidade.</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <p class="copyright">© 2025 FC Statistics. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for("static", filename="js/main.js") }}"></script>
+    <script>
+        // Script específico para a página de estatísticas históricas
+        document.addEventListener("DOMContentLoaded", function() {
+            // Manipulador para o botão de aplicar filtros
+            const applyFiltersBtn = document.getElementById("apply-filters");
+            if (applyFiltersBtn) {
+                applyFiltersBtn.addEventListener("click", applyStatsFilters);
+            }
+
+            // Inicializar gráficos de tendências
+            initTrendCharts();
+
+            // Adicionar estilos específicos para a página
+            const style = document.createElement("style");
+            style.textContent = `
+                .page-header {
+                    margin-bottom: 2rem;
+                }
+                
+                .page-header h1 {
+                    color: var(--primary-color);
+                    font-weight: 700;
+                }
+                
+                .filter-section {
+                    background-color: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    margin-bottom: 2rem;
+                }
+                
+                .stats-table-section {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    padding: 1.5rem;
+                }
+                
+                .trends-charts-section h2 {
+                    color: var(--primary-color);
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .chart-card {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    padding: 1.5rem;
+                    height: 100%;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .chart-card h3 {
+                    color: var(--primary-color);
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    margin-bottom: 1rem;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding-bottom: 0.5rem;
+                }
+                
+                .chart-container {
+                    height: 300px;
+                    position: relative;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+
+        // Função para aplicar filtros na tabela de estatísticas
+        function applyStatsFilters() {
+            // Esta função seria implementada para atualizar a tabela de estatísticas
+            // com base nos filtros selecionados. Por enquanto, apenas simula uma atualização.
+            console.log("Aplicando filtros de estatísticas...");
+            
+            // Simular carregamento
+            const tableBody = document.getElementById("stats-table-body");
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="13" class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                
+                // Simular tempo de carregamento
+                setTimeout(() => {
+                    // Restaurar conteúdo original (em uma implementação real, seria substituído por novos dados)
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td>Manchester City</td>
+                            <td>Premier League</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>7</td>
+                            <td>2</td>
+                            <td>1</td>
+                            <td>22</td>
+                            <td>8</td>
+                            <td>3.0</td>
+                            <td>7.5</td>
+                            <td>1.8</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Liverpool</td>
+                            <td>Premier League</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>6</td>
+                            <td>3</td>
+                            <td>1</td>
+                            <td>18</td>
+                            <td>7</td>
+                            <td>2.5</td>
+                            <td>7.8</td>
+                            <td>1.9</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Barcelona</td>
+                            <td>La Liga</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>6</td>
+                            <td>2</td>
+                            <td>2</td>
+                            <td>19</td>
+                            <td>9</td>
+                            <td>2.8</td>
+                            <td>6.5</td>
+                            <td>2.0</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Real Madrid</td>
+                            <td>La Liga</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>7</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>21</td>
+                            <td>10</td>
+                            <td>3.1</td>
+                            <td>6.7</td>
+                            <td>1.7</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Juventus</td>
+                            <td>Serie A</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>1</td>
+                            <td>15</td>
+                            <td>6</td>
+                            <td>2.1</td>
+                            <td>5.7</td>
+                            <td>2.1</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Inter</td>
+                            <td>Serie A</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>6</td>
+                            <td>2</td>
+                            <td>2</td>
+                            <td>17</td>
+                            <td>8</td>
+                            <td>2.5</td>
+                            <td>5.8</td>
+                            <td>2.2</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>Bayern Munich</td>
+                            <td>Bundesliga</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>8</td>
+                            <td>1</td>
+                            <td>1</td>
+                            <td>30</td>
+                            <td>9</td>
+                            <td>3.9</td>
+                            <td>6.3</td>
+                            <td>1.5</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                        <tr>
+                            <td>PSG</td>
+                            <td>Ligue 1</td>
+                            <td>2024/2025</td>
+                            <td>10</td>
+                            <td>7</td>
+                            <td>2</td>
+                            <td>1</td>
+                            <td>25</td>
+                            <td>7</td>
+                            <td>3.2</td>
+                            <td>5.9</td>
+                            <td>1.6</td>
+                            <td><a href="#" class="btn btn-sm btn-outline-primary">Detalhes</a></td>
+                        </tr>
+                    `;
+                }, 1000);
+            }
+        }
+
+        // Função para inicializar gráficos de tendências
+        function initTrendCharts() {
+            // Gráfico de tendência de golos
+            const goalsCtx = document.getElementById("goalsTrendChart");
+            if (goalsCtx) {
+                new Chart(goalsCtx, {
+                    type: "line",
+                    data: {
+                        labels: ["2021/22", "2022/23", "2023/24", "2024/25"],
+                        datasets: [
+                            {
+                                label: "Premier League",
+                                data: [2.72, 2.85, 2.92, 2.95],
+                                borderColor: "#3b82f6",
+                                tension: 0.1
+                            },
+                            {
+                                label: "La Liga",
+                                data: [2.51, 2.58, 2.61, 2.65],
+                                borderColor: "#ef4444",
+                                tension: 0.1
+                            },
+                            {
+                                label: "Serie A",
+                                data: [2.69, 2.56, 2.60, 2.63],
+                                borderColor: "#10b981",
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "Média de Golos por Temporada"
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: "Média de Golos"
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Gráfico de tendência de cantos
+            const cornersCtx = document.getElementById("cornersTrendChart");
+            if (cornersCtx) {
+                new Chart(cornersCtx, {
+                    type: "line",
+                    data: {
+                        labels: ["2021/22", "2022/23", "2023/24", "2024/25"],
+                        datasets: [
+                            {
+                                label: "Premier League",
+                                data: [10.5, 10.6, 10.8, 10.9],
+                                borderColor: "#3b82f6",
+                                tension: 0.1
+                            },
+                            {
+                                label: "La Liga",
+                                data: [9.8, 9.9, 10.1, 10.2],
+                                borderColor: "#ef4444",
+                                tension: 0.1
+                            },
+                            {
+                                label: "Serie A",
+                                data: [9.5, 9.6, 9.7, 9.8],
+                                borderColor: "#10b981",
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "Média de Cantos por Temporada"
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: "Média de Cantos"
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>

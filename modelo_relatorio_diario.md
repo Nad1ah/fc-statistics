@@ -3,15 +3,18 @@
 ## Estrutura Padrão para Relatórios Diários
 
 ### 1. Cabeçalho
+
 ```
 🔍 FC STATISTICS - RELATÓRIO DIÁRIO 🔍
 📅 [DATA ATUAL]
 ```
 
 ### 2. Introdução
+
 Breve introdução sobre os principais jogos do dia e tendências gerais a observar.
 
 ### 3. Análises por Liga
+
 Para cada liga principal (Premier League, La Liga, Serie A, Bundesliga, Ligue 1):
 
 ```
@@ -25,6 +28,7 @@ Para cada liga principal (Premier League, La Liga, Serie A, Bundesliga, Ligue 1)
 ```
 
 ### 4. Sugestões de Apostas
+
 Top 3-5 apostas recomendadas com base na análise estatística:
 
 ```
@@ -35,6 +39,7 @@ Top 3-5 apostas recomendadas com base na análise estatística:
 ```
 
 ### 5. Estatísticas Relevantes
+
 Dados estatísticos importantes que suportam as análises:
 
 ```
@@ -45,6 +50,7 @@ Dados estatísticos importantes que suportam as análises:
 ```
 
 ### 6. Rodapé
+
 ```
 📱 Siga nosso canal Telegram para atualizações em tempo real: [Link]
 🌐 Acesse FC Statistics para análises completas: [Link]
@@ -136,18 +142,21 @@ Hoje temos grandes confrontos nas principais ligas europeias, com destaque para 
 ## Diretrizes Editoriais
 
 1. **Tom e Estilo**:
+
    - Profissional e objetivo
    - Baseado em dados estatísticos
    - Claro e direto
    - Evitar linguagem excessivamente técnica
 
 2. **Formatação**:
+
    - Usar emojis para melhorar a legibilidade e destacar seções
    - Utilizar negrito para títulos e informações importantes
    - Manter consistência na estrutura
    - Usar espaçamento adequado para facilitar a leitura
 
 3. **Conteúdo**:
+
    - Focar nos jogos mais relevantes do dia
    - Incluir análises estatísticas detalhadas
    - Justificar todas as sugestões de apostas

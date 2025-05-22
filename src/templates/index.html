@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FC Statistics - Análises de Apostas Desportivas</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="logo-text">FC Statistics</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/relatorios">Relatórios Diários</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Análise de Mercados
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=gols">Golos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=vencedor">Vencedor</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cantos">Cantos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cartoes">Cartões</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/comparacao-odds">Comparação de Odds</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/estatisticas">Estatísticas Históricas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sobre">Sobre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link telegram-link" href="#" target="_blank">
+                            <i class="fab fa-telegram"></i> Canal Telegram
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container mt-4">
+        <!-- Banner Principal -->
+        <div class="hero-section">
+            <div class="row">
+                <div class="col-md-8">
+                    <h1 class="display-4">Análises Estatísticas para Apostas de Futebol</h1>
+                    <p class="lead">Análises diárias baseadas em dados para os mercados de golos, vencedor, cantos e cartões.</p>
+                    <div class="hero-buttons">
+                        <a href="/relatorios" class="btn btn-primary">Ver Relatórios</a>
+                        <a href="#jogos-hoje" class="btn btn-outline-secondary">Jogos de Hoje</a>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-center justify-content-center">
+                    <div class="stats-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jogos do Dia -->
+        <section id="jogos-hoje" class="mt-5">
+            <div class="section-header">
+                <h2>Jogos de Hoje</h2>
+                <div class="date-filter">
+                    <input type="date" id="date-selector" class="form-control">
+                </div>
+            </div>
+            
+            <div class="row mt-4" id="jogos-container">
+                <!-- Os jogos serão carregados via JavaScript -->
+                <div class="col-12 text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Carregando...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Melhores Sugestões -->
+        <section class="mt-5">
+            <h2>Melhores Sugestões do Dia</h2>
+            <div class="row mt-4">
+                <div class="col-md-4 mb-4">
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <span class="badge bg-primary">Golos</span>
+                            <div class="confidence-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="suggestion-teams">
+                            <span>Manchester City vs Liverpool</span>
+                        </div>
+                        <div class="suggestion-details">
+                            <p class="suggestion-pick">Over 2.5 Golos</p>
+                            <p class="suggestion-odds">Odd: <span>1.85</span></p>
+                        </div>
+                        <div class="suggestion-analysis">
+                            <p>Ambas as equipas têm média de 3.2 golos por jogo nos últimos 5 confrontos.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <span class="badge bg-success">Vencedor</span>
+                            <div class="confidence-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <i class="far fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="suggestion-teams">
+                            <span>Barcelona vs Real Madrid</span>
+                        </div>
+                        <div class="suggestion-details">
+                            <p class="suggestion-pick">Barcelona Vence</p>
+                            <p class="suggestion-odds">Odd: <span>2.10</span></p>
+                        </div>
+                        <div class="suggestion-analysis">
+                            <p>Barcelona venceu 4 dos últimos 5 jogos em casa contra o Real Madrid.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="suggestion-card">
+                        <div class="suggestion-header">
+                            <span class="badge bg-warning text-dark">Cantos</span>
+                            <div class="confidence-rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                        <div class="suggestion-teams">
+                            <span>Juventus vs Inter</span>
+                        </div>
+                        <div class="suggestion-details">
+                            <p class="suggestion-pick">Over 9.5 Cantos</p>
+                            <p class="suggestion-odds">Odd: <span>1.90</span></p>
+                        </div>
+                        <div class="suggestion-analysis">
+                            <p>Média de 11.2 cantos nos últimos 6 confrontos entre as equipas.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a href="/relatorios" class="btn btn-outline-primary">Ver Todas as Sugestões</a>
+            </div>
+        </section>
+
+        <!-- Estatísticas Rápidas -->
+        <section class="mt-5">
+            <h2>Estatísticas Rápidas</h2>
+            <div class="row mt-4">
+                <div class="col-md-6 mb-4">
+                    <div class="stats-card">
+                        <h3>Top 5 Equipas - Over 2.5 Golos</h3>
+                        <div class="stats-table-container">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Equipa</th>
+                                        <th>Jogos</th>
+                                        <th>Over 2.5</th>
+                                        <th>%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Manchester City</td>
+                                        <td>10</td>
+                                        <td>8</td>
+                                        <td>80%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Bayern Munich</td>
+                                        <td>10</td>
+                                        <td>7</td>
+                                        <td>70%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Liverpool</td>
+                                        <td>10</td>
+                                        <td>7</td>
+                                        <td>70%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>PSG</td>
+                                        <td>10</td>
+                                        <td>6</td>
+                                        <td>60%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Barcelona</td>
+                                        <td>10</td>
+                                        <td>6</td>
+                                        <td>60%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="stats-card">
+                        <h3>Top 5 Equipas - Cantos</h3>
+                        <div class="stats-table-container">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Equipa</th>
+                                        <th>Jogos</th>
+                                        <th>Média</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Liverpool</td>
+                                        <td>10</td>
+                                        <td>7.8</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Manchester City</td>
+                                        <td>10</td>
+                                        <td>7.5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Chelsea</td>
+                                        <td>10</td>
+                                        <td>6.9</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Real Madrid</td>
+                                        <td>10</td>
+                                        <td>6.7</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Barcelona</td>
+                                        <td>10</td>
+                                        <td>6.5</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a href="/estatisticas" class="btn btn-outline-primary">Ver Estatísticas Completas</a>
+            </div>
+        </section>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>FC Statistics</h4>
+                    <p>Análises estatísticas para apostas desportivas de futebol.</p>
+                    <div class="social-links">
+                        <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h4>Links Rápidos</h4>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/relatorios">Relatórios Diários</a></li>
+                        <li><a href="/analise-mercados">Análise de Mercados</a></li>
+                        <li><a href="/comparacao-odds">Comparação de Odds</a></li>
+                        <li><a href="/estatisticas">Estatísticas Históricas</a></li>
+                        <li><a href="/sobre">Sobre</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4>Aviso Legal</h4>
+                    <p>As análises e sugestões apresentadas são baseadas em dados estatísticos e não garantem resultados. Aposte com responsabilidade.</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <p class="copyright">© 2025 FC Statistics. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

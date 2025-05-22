@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparação de Odds - FC Statistics</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="logo-text">FC Statistics</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/relatorios">Relatórios Diários</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Análise de Mercados
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=gols">Golos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=vencedor">Vencedor</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cantos">Cantos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cartoes">Cartões</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/comparacao-odds">Comparação de Odds</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/estatisticas">Estatísticas Históricas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sobre">Sobre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link telegram-link" href="#" target="_blank">
+                            <i class="fab fa-telegram"></i> Canal Telegram
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container mt-4">
+        <!-- Cabeçalho da Página -->
+        <div class="page-header">
+            <h1>Comparação de Odds</h1>
+            <p class="lead">Compare as melhores odds entre diferentes casas de apostas para maximizar seus ganhos.</p>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="date-filter" class="form-label">Data:</label>
+                        <input type="date" id="date-filter" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="league-filter" class="form-label">Liga:</label>
+                        <select id="league-filter" class="form-select">
+                            <option value="all">Todas as Ligas</option>
+                            <option value="premier-league">Premier League</option>
+                            <option value="la-liga">La Liga</option>
+                            <option value="serie-a">Serie A</option>
+                            <option value="bundesliga">Bundesliga</option>
+                            <option value="ligue-1">Ligue 1</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="market-filter" class="form-label">Mercado:</label>
+                        <select id="market-filter" class="form-select">
+                            <option value="1x2">Resultado Final (1X2)</option>
+                            <option value="over-under">Over/Under Golos</option>
+                            <option value="btts">Ambas Marcam</option>
+                            <option value="corners">Cantos</option>
+                            <option value="cards">Cartões</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-8">
+                    <div class="form-group">
+                        <label for="bookmakers-filter" class="form-label">Casas de Apostas:</label>
+                        <div class="bookmakers-selection">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="bet365" value="bet365" checked>
+                                <label class="form-check-label" for="bet365">Bet365</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="betano" value="betano" checked>
+                                <label class="form-check-label" for="betano">Betano</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="betfair" value="betfair" checked>
+                                <label class="form-check-label" for="betfair">Betfair</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="1xbet" value="1xbet" checked>
+                                <label class="form-check-label" for="1xbet">1xBet</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="bwin" value="bwin" checked>
+                                <label class="form-check-label" for="bwin">Bwin</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button id="apply-filters" class="btn btn-primary w-100">Aplicar Filtros</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela de Comparação de Odds -->
+        <div class="odds-comparison-table mt-4">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Liga</th>
+                            <th>Jogo</th>
+                            <th class="text-center">Bet365</th>
+                            <th class="text-center">Betano</th>
+                            <th class="text-center">Betfair</th>
+                            <th class="text-center">1xBet</th>
+                            <th class="text-center">Bwin</th>
+                            <th class="text-center">Melhor Odd</th>
+                            <th class="text-center">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody id="odds-table-body">
+                        <!-- Resultado Final (1X2) -->
+                        <tr class="game-row">
+                            <td rowspan="3">22/05 20:45</td>
+                            <td rowspan="3">Premier League</td>
+                            <td rowspan="3">Manchester City vs Liverpool</td>
+                            <td class="text-center">1.85</td>
+                            <td class="text-center">1.83</td>
+                            <td class="text-center">1.80</td>
+                            <td class="text-center">1.82</td>
+                            <td class="text-center">1.81</td>
+                            <td class="text-center best-odd">1.85</td>
+                            <td class="text-center">Bet365</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">3.50</td>
+                            <td class="text-center">3.45</td>
+                            <td class="text-center">3.60</td>
+                            <td class="text-center">3.55</td>
+                            <td class="text-center">3.50</td>
+                            <td class="text-center best-odd">3.60</td>
+                            <td class="text-center">Betfair</td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-center">4.20</td>
+                            <td class="text-center">4.25</td>
+                            <td class="text-center">4.30</td>
+                            <td class="text-center">4.20</td>
+                            <td class="text-center">4.15</td>
+                            <td class="text-center best-odd">4.30</td>
+                            <td class="text-center">Betfair</td>
+                        </tr>
+                        
+                        <tr class="game-row">
+                            <td rowspan="3">22/05 20:45</td>
+                            <td rowspan="3">La Liga</td>
+                            <td rowspan="3">Barcelona vs Real Madrid</td>
+                            <td class="text-center">2.10</td>
+                            <td class="text-center">2.15</td>
+                            <td class="text-center">2.05</td>
+                            <td class="text-center">2.12</td>
+                            <td class="text-center">2.08</td>
+                            <td class="text-center best-odd">2.15</td>
+                            <td class="text-center">Betano</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">3.30</td>
+                            <td class="text-center">3.25</td>
+                            <td class="text-center">3.35</td>
+                            <td class="text-center">3.30</td>
+                            <td class="text-center">3.20</td>
+                            <td class="text-center best-odd">3.35</td>
+                            <td class="text-center">Betfair</td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-center">3.40</td>
+                            <td class="text-center">3.35</td>
+                            <td class="text-center">3.45</td>
+                            <td class="text-center">3.50</td>
+                            <td class="text-center">3.40</td>
+                            <td class="text-center best-odd">3.50</td>
+                            <td class="text-center">1xBet</td>
+                        </tr>
+                        
+                        <tr class="game-row">
+                            <td rowspan="3">22/05 20:45</td>
+                            <td rowspan="3">Serie A</td>
+                            <td rowspan="3">Juventus vs Inter</td>
+                            <td class="text-center">2.25</td>
+                            <td class="text-center">2.20</td>
+                            <td class="text-center">2.30</td>
+                            <td class="text-center">2.28</td>
+                            <td class="text-center">2.25</td>
+                            <td class="text-center best-odd">2.30</td>
+                            <td class="text-center">Betfair</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">3.10</td>
+                            <td class="text-center">3.15</td>
+                            <td class="text-center">3.05</td>
+                            <td class="text-center">3.10</td>
+                            <td class="text-center">3.20</td>
+                            <td class="text-center best-odd">3.20</td>
+                            <td class="text-center">Bwin</td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-center">3.30</td>
+                            <td class="text-center">3.35</td>
+                            <td class="text-center">3.25</td>
+                            <td class="text-center">3.30</td>
+                            <td class="text-center">3.25</td>
+                            <td class="text-center best-odd">3.35</td>
+                            <td class="text-center">Betano</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Value Bets -->
+        <div class="value-bets-section mt-5">
+            <h2>Value Bets Recomendadas</h2>
+            <p class="mb-4">Apostas com valor positivo esperado baseadas na comparação de odds e probabilidades calculadas.</p>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="value-bet-card">
+                        <div class="value-bet-header">
+                            <span class="value-bet-league">Premier League</span>
+                            <span class="value-bet-value">Valor: +12.4%</span>
+                        </div>
+                        <div class="value-bet-teams">
+                            <span>Manchester City vs Liverpool</span>
+                        </div>
+                        <div class="value-bet-details">
+                            <div class="value-bet-market">Resultado Final: <strong>Liverpool</strong></div>
+                            <div class="value-bet-odds">
+                                <span class="value-bet-odd">Odd: 4.30</span>
+                                <span class="value-bet-bookmaker">Betfair</span>
+                            </div>
+                        </div>
+                        <div class="value-bet-analysis">
+                            <p>Probabilidade calculada: 27.5%</p>
+                            <p>Probabilidade implícita na odd: 23.3%</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="value-bet-card">
+                        <div class="value-bet-header">
+                            <span class="value-bet-league">La Liga</span>
+                            <span class="value-bet-value">Valor: +8.7%</span>
+                        </div>
+                        <div class="value-bet-teams">
+                            <span>Barcelona vs Real Madrid</span>
+                        </div>
+                        <div class="value-bet-details">
+                            <div class="value-bet-market">Ambas Marcam: <strong>Sim</strong></div>
+                            <div class="value-bet-odds">
+                                <span class="value-bet-odd">Odd: 1.75</span>
+                                <span class="value-bet-bookmaker">1xBet</span>
+                            </div>
+                        </div>
+                        <div class="value-bet-analysis">
+                            <p>Probabilidade calculada: 62.5%</p>
+                            <p>Probabilidade implícita na odd: 57.1%</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="value-bet-card">
+                        <div class="value-bet-header">
+                            <span class="value-bet-league">Serie A</span>
+                            <span class="value-bet-value">Valor: +10.2%</span>
+                        </div>
+                        <div class="value-bet-teams">
+                            <span>Juventus vs Inter</span>
+                        </div>
+                        <div class="value-bet-details">
+                            <div class="value-bet-market">Over/Under: <strong>Under 2.5</strong></div>
+                            <div class="value-bet-odds">
+                                <span class="value-bet-odd">Odd: 2.00</span>
+                                <span class="value-bet-bookmaker">Betano</span>
+                            </div>
+                        </div>
+                        <div class="value-bet-analysis">
+                            <p>Probabilidade calculada: 55.0%</p>
+                            <p>Probabilidade implícita na odd: 50.0%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Calculadora de Valor -->
+        <div class="value-calculator-section mt-5">
+            <h2>Calculadora de Valor</h2>
+            <p class="mb-4">Determine se uma aposta tem valor positivo comparando a odd oferecida com a probabilidade estimada.</p>
+            
+            <div class="calculator-card">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label for="odd-input" class="form-label">Odd Decimal:</label>
+                            <input type="number" id="odd-input" class="form-control" step="0.01" min="1.01" value="2.00">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="probability-input" class="form-label">Probabilidade Estimada (%):</label>
+                            <input type="number" id="probability-input" class="form-control" step="0.1" min="0.1" max="99.9" value="50.0">
+                        </div>
+                        <button id="calculate-value" class="btn btn-primary">Calcular Valor</button>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="result-card">
+                            <h4>Resultados:</h4>
+                            <div class="result-item">
+                                <div class="result-label">Probabilidade Implícita na Odd:</div>
+                                <div class="result-value" id="implied-probability">50.00%</div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-label">Valor Esperado:</div>
+                                <div class="result-value" id="expected-value">0.00%</div>
+                            </div>
+                            <div class="result-conclusion mt-3" id="value-conclusion">
+                                Esta aposta não tem valor positivo nem negativo.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Arbitragem -->
+        <div class="arbitrage-section mt-5">
+            <h2>Oportunidades de Arbitragem</h2>
+            <p class="mb-4">Combinações de apostas que garantem lucro independentemente do resultado.</p>
+            
+            <div class="arbitrage-card">
+                <div class="arbitrage-header">
+                    <div class="arbitrage-title">
+                        <h4>Barcelona vs Real Madrid</h4>
+                        <span class="arbitrage-profit">Lucro Garantido: 2.3%</span>
+                    </div>
+                    <div class="arbitrage-details">
+                        <span class="arbitrage-league">La Liga</span>
+                        <span class="arbitrage-date">22/05/2025 20:45</span>
+                    </div>
+                </div>
+                <div class="arbitrage-bets">
+                    <div class="arbitrage-bet">
+                        <div class="arbitrage-bet-details">
+                            <div class="arbitrage-bet-selection">Barcelona Vence</div>
+                            <div class="arbitrage-bet-bookmaker">Betano</div>
+                        </div>
+                        <div class="arbitrage-bet-odds">
+                            <div class="arbitrage-bet-odd">2.15</div>
+                            <div class="arbitrage-bet-stake">Apostar: €47.10</div>
+                        </div>
+                    </div>
+                    <div class="arbitrage-bet">
+                        <div class="arbitrage-bet-details">
+                            <div class="arbitrage-bet-selection">Empate</div>
+                            <div class="arbitrage-bet-bookmaker">Betfair</div>
+                        </div>
+                        <div class="arbitrage-bet-odds">
+                            <div class="arbitrage-bet-odd">3.35</div>
+                            <div class="arbitrage-bet-stake">Apostar: €30.20</div>
+                        </div>
+                    </div>
+                    <div class="arbitrage-bet">
+                        <div class="arbitrage-bet-details">
+                            <div class="arbitrage-bet-selection">Real Madrid Vence</div>
+                            <div class="arbitrage-bet-bookmaker">1xBet</div>
+                        </div>
+                        <div class="arbitrage-bet-odds">
+                            <div class="arbitrage-bet-odd">3.50</div>
+                            <div class="arbitrage-bet-stake">Apostar: €22.70</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="arbitrage-summary">
+                    <div class="arbitrage-summary-item">
+                        <div class="arbitrage-summary-label">Investimento Total:</div>
+                        <div class="arbitrage-summary-value">€100.00</div>
+                    </div>
+                    <div class="arbitrage-summary-item">
+                        <div class="arbitrage-summary-label">Retorno Garantido:</div>
+                        <div class="arbitrage-summary-value">€102.30</div>
+                    </div>
+                    <div class="arbitrage-summary-item">
+                        <div class="arbitrage-summary-label">Lucro Garantido:</div>
+                        <div class="arbitrage-summary-value">€2.30</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>FC Statistics</h4>
+                    <p>Análises estatísticas para apostas desportivas de futebol.</p>
+                    <div class="social-links">
+                        <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h4>Links Rápidos</h4>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/relatorios">Relatórios Diários</a></li>
+                        <li><a href="/analise-mercados">Análise de Mercados</a></li>
+                        <li><a href="/comparacao-odds">Comparação de Odds</a></li>
+                        <li><a href="/estatisticas">Estatísticas Históricas</a></li>
+                        <li><a href="/sobre">Sobre</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4>Aviso Legal</h4>
+                    <p>As análises e sugestões apresentadas são baseadas em dados estatísticos e não garantem resultados. Aposte com responsabilidade.</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <p class="copyright">© 2025 FC Statistics. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Script específico para a página de comparação de odds
+        document.addEventListener('DOMContentLoaded', function() {
+            // Definir a data atual no seletor de data
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            const dateFilter = document.getElementById('date-filter');
+            
+            if (dateFilter) {
+                dateFilter.value = formattedDate;
+            }
+            
+            // Manipulador para o botão de aplicar filtros
+            const applyFiltersBtn = document.getElementById('apply-filters');
+            if (applyFiltersBtn) {
+                applyFiltersBtn.addEventListener('click', applyFilters);
+            }
+            
+            // Manipulador para a calculadora de valor
+            const calculateValueBtn = document.getElementById('calculate-value');
+            if (calculateValueBtn) {
+                calculateValueBtn.addEventListener('click', calculateValue);
+            }
+            
+            // Adicionar estilos específicos para a página
+            const style = document.createElement('style');
+            style.textContent = `
+                .page-header {
+                    margin-bottom: 2rem;
+                }
+                
+                .page-header h1 {
+                    color: var(--primary-color);
+                    font-weight: 700;
+                }
+                
+                .filter-section {
+                    background-color: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    margin-bottom: 2rem;
+                }
+                
+                .bookmakers-selection {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.5rem;
+                }
+                
+                .odds-comparison-table {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    padding: 1.5rem;
+                }
+                
+                .game-row td {
+                    border-top: 2px solid #e5e7eb;
+                }
+                
+                .border-bottom td {
+                    border-bottom: 1px solid #e5e7eb;
+                }
+                
+                .best-odd {
+                    font-weight: 700;
+                    color: var(--success-color);
+                }
+                
+                .value-bets-section h2, .value-calculator-section h2, .arbitrage-section h2 {
+                    color: var(--primary-color);
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .value-bet-card {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    padding: 1.5rem;
+                    height: 100%;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+                
+                .value-bet-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+                }
+                
+                .value-bet-header {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 1rem;
+                }
+                
+                .value-bet-league {
+                    font-weight: 500;
+                    color: var(--primary-color);
+                }
+                
+                .value-bet-value {
+                    font-weight: 600;
+                    color: var(--success-color);
+                }
+                
+                .value-bet-teams {
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    margin-bottom: 1rem;
+                }
+                
+                .value-bet-details {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 1rem;
+                }
+                
+                .value-bet-market {
+                    font-weight: 500;
+                }
+                
+                .value-bet-odds {
+                    text-align: right;
+                }
+                
+                .value-bet-odd {
+                    font-weight: 700;
+                    color: var(--primary-color);
+                    display: block;
+                }
+                
+                .value-bet-bookmaker {
+                    font-size: 0.9rem;
+                    color: #6b7280;
+                }
+                
+                .value-bet-analysis {
+                    font-size: 0.9rem;
+                    color: #4b5563;
+                    border-top: 1px solid #e5e7eb;
+                    padding-top: 1rem;
+                }
+                
+                .value-bet-analysis p {
+                    margin-bottom: 0.3rem;
+                }
+                
+                .calculator-card {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    padding: 1.5rem;
+                }
+                
+                .result-card {
+                    background-color: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    height: 100%;
+                }
+                
+                .result-card h4 {
+                    color: var(--primary-color);
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    margin-bottom: 1rem;
+                }
+                
+                .result-item {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 0.8rem;
+                }
+                
+                .result-label {
+                    font-weight: 500;
+                }
+                
+                .result-value {
+                    font-weight: 700;
+                }
+                
+                .result-conclusion {
+                    font-weight: 600;
+                    text-align: center;
+                    padding: 0.8rem;
+                    border-radius: 6px;
+                }
+                
+                .arbitrage-card {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    padding: 1.5rem;
+                }
+                
+                .arbitrage-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .arbitrage-title h4 {
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    margin: 0;
+                    margin-bottom: 0.3rem;
+                }
+                
+                .arbitrage-profit {
+                    font-weight: 700;
+                    color: var(--success-color);
+                }
+                
+                .arbitrage-details {
+                    text-align: right;
+                }
+                
+                .arbitrage-league {
+                    font-weight: 500;
+                    color: var(--primary-color);
+                    display: block;
+                }
+                
+                .arbitrage-date {
+                    font-size: 0.9rem;
+                    color: #6b7280;
+                }
+                
+                .arbitrage-bets {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .arbitrage-bet {
+                    display: flex;
+                    justify-content: space-between;
+                    background-color: #f8f9fa;
+                    border-radius: 8px;
+                    padding: 1rem;
+                }
+                
+                .arbitrage-bet-selection {
+                    font-weight: 600;
+                }
+                
+                .arbitrage-bet-bookmaker {
+                    font-size: 0.9rem;
+                    color: #6b7280;
+                }
+                
+                .arbitrage-bet-odds {
+                    text-align: right;
+                }
+                
+                .arbitrage-bet-odd {
+                    font-weight: 700;
+                    color: var(--primary-color);
+                }
+                
+                .arbitrage-bet-stake {
+                    font-size: 0.9rem;
+                    color: #4b5563;
+                }
+                
+                .arbitrage-summary {
+                    background-color: #f0f4ff;
+                    border-radius: 8px;
+                    padding: 1rem;
+                }
+                
+                .arbitrage-summary-item {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .arbitrage-summary-item:last-child {
+                    margin-bottom: 0;
+                    font-weight: 700;
+                }
+                
+                .arbitrage-summary-label {
+                    font-weight: 500;
+                }
+                
+                .arbitrage-summary-value {
+                    font-weight: 600;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+        
+        // Função para aplicar filtros
+        function applyFilters() {
+            // Esta função seria implementada para atualizar a tabela de odds
+            // com base nos filtros selecionados. Por enquanto, apenas simula uma atualização.
+            console.log('Aplicando filtros...');
+            
+            // Simular carregamento
+            const tableBody = document.getElementById('odds-table-body');
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="text-center">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Carregando...</span>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                
+                // Simular tempo de carregamento
+                setTimeout(() => {
+                    // Restaurar conteúdo original (em uma implementação real, seria substituído por novos dados)
+                    tableBody.innerHTML = `
+                        <!-- Resultado Final (1X2) -->
+                        <tr class="game-row">
+                            <td rowspan="3">22/05 20:45</td>
+                            <td rowspan="3">Premier League</td>
+                            <td rowspan="3">Manchester City vs Liverpool</td>
+                            <td class="text-center">1.85</td>
+                            <td class="text-center">1.83</td>
+                            <td class="text-center">1.80</td>
+                            <td class="text-center">1.82</td>
+                            <td class="text-center">1.81</td>
+                            <td class="text-center best-odd">1.85</td>
+                            <td class="text-center">Bet365</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">3.50</td>
+                            <td class="text-center">3.45</td>
+                            <td class="text-center">3.60</td>
+                            <td class="text-center">3.55</td>
+                            <td class="text-center">3.50</td>
+                            <td class="text-center best-odd">3.60</td>
+                            <td class="text-center">Betfair</td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-center">4.20</td>
+                            <td class="text-center">4.25</td>
+                            <td class="text-center">4.30</td>
+                            <td class="text-center">4.20</td>
+                            <td class="text-center">4.15</td>
+                            <td class="text-center best-odd">4.30</td>
+                            <td class="text-center">Betfair</td>
+                        </tr>
+                        
+                        <tr class="game-row">
+                            <td rowspan="3">22/05 20:45</td>
+                            <td rowspan="3">La Liga</td>
+                            <td rowspan="3">Barcelona vs Real Madrid</td>
+                            <td class="text-center">2.10</td>
+                            <td class="text-center">2.15</td>
+                            <td class="text-center">2.05</td>
+                            <td class="text-center">2.12</td>
+                            <td class="text-center">2.08</td>
+                            <td class="text-center best-odd">2.15</td>
+                            <td class="text-center">Betano</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">3.30</td>
+                            <td class="text-center">3.25</td>
+                            <td class="text-center">3.35</td>
+                            <td class="text-center">3.30</td>
+                            <td class="text-center">3.20</td>
+                            <td class="text-center best-odd">3.35</td>
+                            <td class="text-center">Betfair</td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-center">3.40</td>
+                            <td class="text-center">3.35</td>
+                            <td class="text-center">3.45</td>
+                            <td class="text-center">3.50</td>
+                            <td class="text-center">3.40</td>
+                            <td class="text-center best-odd">3.50</td>
+                            <td class="text-center">1xBet</td>
+                        </tr>
+                        
+                        <tr class="game-row">
+                            <td rowspan="3">22/05 20:45</td>
+                            <td rowspan="3">Serie A</td>
+                            <td rowspan="3">Juventus vs Inter</td>
+                            <td class="text-center">2.25</td>
+                            <td class="text-center">2.20</td>
+                            <td class="text-center">2.30</td>
+                            <td class="text-center">2.28</td>
+                            <td class="text-center">2.25</td>
+                            <td class="text-center best-odd">2.30</td>
+                            <td class="text-center">Betfair</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">3.10</td>
+                            <td class="text-center">3.15</td>
+                            <td class="text-center">3.05</td>
+                            <td class="text-center">3.10</td>
+                            <td class="text-center">3.20</td>
+                            <td class="text-center best-odd">3.20</td>
+                            <td class="text-center">Bwin</td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-center">3.30</td>
+                            <td class="text-center">3.35</td>
+                            <td class="text-center">3.25</td>
+                            <td class="text-center">3.30</td>
+                            <td class="text-center">3.25</td>
+                            <td class="text-center best-odd">3.35</td>
+                            <td class="text-center">Betano</td>
+                        </tr>
+                    `;
+                }, 1000);
+            }
+        }
+        
+        // Função para calcular valor
+        function calculateValue() {
+            const oddInput = document.getElementById('odd-input');
+            const probabilityInput = document.getElementById('probability-input');
+            const impliedProbability = document.getElementById('implied-probability');
+            const expectedValue = document.getElementById('expected-value');
+            const valueConclusion = document.getElementById('value-conclusion');
+            
+            if (oddInput && probabilityInput && impliedProbability && expectedValue && valueConclusion) {
+                const odd = parseFloat(oddInput.value);
+                const probability = parseFloat(probabilityInput.value);
+                
+                // Calcular probabilidade implícita
+                const impliedProb = (1 / odd) * 100;
+                impliedProbability.textContent = impliedProb.toFixed(2) + '%';
+                
+                // Calcular valor esperado
+                const ev = ((odd * (probability / 100)) - 1) * 100;
+                expectedValue.textContent = ev.toFixed(2) + '%';
+                
+                // Definir conclusão
+                if (ev > 0) {
+                    valueConclusion.textContent = 'Esta aposta tem valor positivo! Recomendada.';
+                    valueConclusion.style.backgroundColor = '#d1fae5';
+                    valueConclusion.style.color = '#065f46';
+                } else if (ev < 0) {
+                    valueConclusion.textContent = 'Esta aposta tem valor negativo. Não recomendada.';
+                    valueConclusion.style.backgroundColor = '#fee2e2';
+                    valueConclusion.style.color = '#991b1b';
+                } else {
+                    valueConclusion.textContent = 'Esta aposta não tem valor positivo nem negativo.';
+                    valueConclusion.style.backgroundColor = '#f3f4f6';
+                    valueConclusion.style.color = '#4b5563';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

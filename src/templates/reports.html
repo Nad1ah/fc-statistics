@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios Diários - FC Statistics</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="logo-text">FC Statistics</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/relatorios">Relatórios Diários</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Análise de Mercados
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=gols">Golos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=vencedor">Vencedor</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cantos">Cantos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cartoes">Cartões</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/comparacao-odds">Comparação de Odds</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/estatisticas">Estatísticas Históricas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sobre">Sobre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link telegram-link" href="#" target="_blank">
+                            <i class="fab fa-telegram"></i> Canal Telegram
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container mt-4">
+        <!-- Cabeçalho da Página -->
+        <div class="page-header">
+            <h1>Relatórios Diários</h1>
+            <p class="lead">Análises detalhadas e sugestões de apostas atualizadas diariamente.</p>
+        </div>
+
+        <!-- Filtro de Datas -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="date-range-filter">
+                        <label for="date-selector" class="form-label">Selecionar Data:</label>
+                        <input type="date" id="date-selector" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="quick-date-filter">
+                        <label class="form-label">Filtros Rápidos:</label>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary" data-date="today">Hoje</button>
+                            <button type="button" class="btn btn-outline-primary" data-date="yesterday">Ontem</button>
+                            <button type="button" class="btn btn-outline-primary" data-date="week">Esta Semana</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Relatório Detalhado (se um jogo específico for selecionado) -->
+        {% if jogo_id %}
+        <div class="detailed-report mt-4">
+            <div class="report-header">
+                <h2>Análise Detalhada: Manchester City vs Liverpool</h2>
+                <div class="report-meta">
+                    <span class="report-date"><i class="far fa-calendar-alt"></i> 22/05/2025</span>
+                    <span class="report-league"><i class="fas fa-trophy"></i> Premier League</span>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <!-- Informações do Jogo -->
+                    <div class="game-info-card">
+                        <div class="teams-header">
+                            <div class="team home-team">
+                                <div class="team-name">Manchester City</div>
+                                <div class="team-form">
+                                    <span class="form-result win">V</span>
+                                    <span class="form-result win">V</span>
+                                    <span class="form-result draw">E</span>
+                                    <span class="form-result win">V</span>
+                                    <span class="form-result loss">D</span>
+                                </div>
+                            </div>
+                            <div class="vs-container">
+                                <div class="vs">vs</div>
+                                <div class="game-time">20:45</div>
+                            </div>
+                            <div class="team away-team">
+                                <div class="team-name">Liverpool</div>
+                                <div class="team-form">
+                                    <span class="form-result win">V</span>
+                                    <span class="form-result win">V</span>
+                                    <span class="form-result win">V</span>
+                                    <span class="form-result draw">E</span>
+                                    <span class="form-result win">V</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Análise por Mercados -->
+                        <div class="market-analysis mt-4">
+                            <h3>Análise por Mercados</h3>
+                            
+                            <!-- Golos -->
+                            <div class="market-section">
+                                <div class="market-header">
+                                    <h4><i class="fas fa-futbol"></i> Golos</h4>
+                                    <div class="confidence-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                </div>
+                                <div class="market-content">
+                                    <p>Ambas as equipas têm média de 3.2 golos por jogo nos últimos 5 confrontos diretos. O Manchester City marcou em 90% dos seus jogos em casa esta temporada, enquanto o Liverpool marcou em 85% dos seus jogos fora.</p>
+                                    
+                                    <div class="stats-table-container">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Equipa</th>
+                                                    <th>Jogos</th>
+                                                    <th>Over 2.5</th>
+                                                    <th>BTTS</th>
+                                                    <th>Média Golos</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Manchester City</td>
+                                                    <td>10</td>
+                                                    <td>80%</td>
+                                                    <td>70%</td>
+                                                    <td>2.8</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Liverpool</td>
+                                                    <td>10</td>
+                                                    <td>70%</td>
+                                                    <td>60%</td>
+                                                    <td>2.5</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="suggestion-box">
+                                        <div class="suggestion-title">Sugestão:</div>
+                                        <div class="suggestion-content">
+                                            <span class="suggestion-pick">Over 2.5 Golos</span>
+                                            <span class="suggestion-odds">Odd: 1.85</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Vencedor -->
+                            <div class="market-section">
+                                <div class="market-header">
+                                    <h4><i class="fas fa-trophy"></i> Vencedor</h4>
+                                    <div class="confidence-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                </div>
+                                <div class="market-content">
+                                    <p>O Manchester City venceu 3 dos últimos 5 confrontos diretos, com 1 empate e 1 vitória do Liverpool. Em casa, o City tem um aproveitamento de 80% esta temporada.</p>
+                                    
+                                    <div class="stats-table-container">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Equipa</th>
+                                                    <th>Jogos</th>
+                                                    <th>Vitórias</th>
+                                                    <th>Empates</th>
+                                                    <th>Derrotas</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Manchester City (Casa)</td>
+                                                    <td>10</td>
+                                                    <td>8</td>
+                                                    <td>1</td>
+                                                    <td>1</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Liverpool (Fora)</td>
+                                                    <td>10</td>
+                                                    <td>6</td>
+                                                    <td>3</td>
+                                                    <td>1</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="suggestion-box">
+                                        <div class="suggestion-title">Sugestão:</div>
+                                        <div class="suggestion-content">
+                                            <span class="suggestion-pick">Manchester City ou Empate</span>
+                                            <span class="suggestion-odds">Odd: 1.40</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Cantos -->
+                            <div class="market-section">
+                                <div class="market-header">
+                                    <h4><i class="fas fa-flag-checkered"></i> Cantos</h4>
+                                    <div class="confidence-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <div class="market-content">
+                                    <p>Ambas as equipas têm médias elevadas de cantos. Nos últimos 5 confrontos diretos, a média foi de 11.2 cantos por jogo.</p>
+                                    
+                                    <div class="stats-table-container">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Equipa</th>
+                                                    <th>Média Cantos (A Favor)</th>
+                                                    <th>Média Cantos (Contra)</th>
+                                                    <th>Média Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Manchester City</td>
+                                                    <td>7.5</td>
+                                                    <td>3.2</td>
+                                                    <td>10.7</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Liverpool</td>
+                                                    <td>7.8</td>
+                                                    <td>3.5</td>
+                                                    <td>11.3</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="suggestion-box">
+                                        <div class="suggestion-title">Sugestão:</div>
+                                        <div class="suggestion-content">
+                                            <span class="suggestion-pick">Over 10.5 Cantos</span>
+                                            <span class="suggestion-odds">Odd: 1.90</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Cartões -->
+                            <div class="market-section">
+                                <div class="market-header">
+                                    <h4><i class="fas fa-square"></i> Cartões</h4>
+                                    <div class="confidence-rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                        <i class="far fa-star"></i>
+                                    </div>
+                                </div>
+                                <div class="market-content">
+                                    <p>Os confrontos entre estas equipas costumam ser intensos, com média de 4.5 cartões por jogo nos últimos 5 confrontos.</p>
+                                    
+                                    <div class="stats-table-container">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Equipa</th>
+                                                    <th>Média Cartões (Recebidos)</th>
+                                                    <th>Média Cartões (Provocados)</th>
+                                                    <th>Média Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Manchester City</td>
+                                                    <td>1.8</td>
+                                                    <td>2.3</td>
+                                                    <td>4.1</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Liverpool</td>
+                                                    <td>1.9</td>
+                                                    <td>2.1</td>
+                                                    <td>4.0</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="suggestion-box">
+                                        <div class="suggestion-title">Sugestão:</div>
+                                        <div class="suggestion-content">
+                                            <span class="suggestion-pick">Over 3.5 Cartões</span>
+                                            <span class="suggestion-odds">Odd: 1.75</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <!-- Comparação de Odds -->
+                    <div class="odds-comparison-card">
+                        <h3>Comparação de Odds</h3>
+                        <div class="odds-table-container">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Casa de Apostas</th>
+                                        <th>1</th>
+                                        <th>X</th>
+                                        <th>2</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Bet365</td>
+                                        <td class="best-odd">1.85</td>
+                                        <td>3.50</td>
+                                        <td>4.20</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Betano</td>
+                                        <td>1.83</td>
+                                        <td>3.45</td>
+                                        <td>4.25</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Betfair</td>
+                                        <td>1.80</td>
+                                        <td class="best-odd">3.60</td>
+                                        <td class="best-odd">4.30</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h4 class="mt-4">Odds para Golos</h4>
+                        <div class="odds-table-container">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Casa de Apostas</th>
+                                        <th>Over 2.5</th>
+                                        <th>Under 2.5</th>
+                                        <th>BTTS</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Bet365</td>
+                                        <td class="best-odd">1.85</td>
+                                        <td>1.95</td>
+                                        <td>1.70</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Betano</td>
+                                        <td>1.80</td>
+                                        <td class="best-odd">2.00</td>
+                                        <td>1.72</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Betfair</td>
+                                        <td>1.82</td>
+                                        <td>1.98</td>
+                                        <td class="best-odd">1.75</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h4 class="mt-4">Odds para Cantos</h4>
+                        <div class="odds-table-container">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Casa de Apostas</th>
+                                        <th>Over 9.5</th>
+                                        <th>Over 10.5</th>
+                                        <th>Over 11.5</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Bet365</td>
+                                        <td>1.65</td>
+                                        <td class="best-odd">1.90</td>
+                                        <td>2.20</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Betano</td>
+                                        <td class="best-odd">1.70</td>
+                                        <td>1.85</td>
+                                        <td>2.25</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Betfair</td>
+                                        <td>1.68</td>
+                                        <td>1.88</td>
+                                        <td class="best-odd">2.30</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Histórico de Confrontos -->
+                    <div class="head-to-head-card mt-4">
+                        <h3>Histórico de Confrontos</h3>
+                        <div class="h2h-list">
+                            <div class="h2h-item">
+                                <div class="h2h-date">10/01/2025</div>
+                                <div class="h2h-teams">
+                                    <span class="h2h-home">Liverpool</span>
+                                    <span class="h2h-score">2-1</span>
+                                    <span class="h2h-away">Manchester City</span>
+                                </div>
+                            </div>
+                            <div class="h2h-item">
+                                <div class="h2h-date">15/09/2024</div>
+                                <div class="h2h-teams">
+                                    <span class="h2h-home">Manchester City</span>
+                                    <span class="h2h-score">3-1</span>
+                                    <span class="h2h-away">Liverpool</span>
+                                </div>
+                            </div>
+                            <div class="h2h-item">
+                                <div class="h2h-date">02/04/2024</div>
+                                <div class="h2h-teams">
+                                    <span class="h2h-home">Liverpool</span>
+                                    <span class="h2h-score">1-1</span>
+                                    <span class="h2h-away">Manchester City</span>
+                                </div>
+                            </div>
+                            <div class="h2h-item">
+                                <div class="h2h-date">25/11/2023</div>
+                                <div class="h2h-teams">
+                                    <span class="h2h-home">Manchester City</span>
+                                    <span class="h2h-score">2-0</span>
+                                    <span class="h2h-away">Liverpool</span>
+                                </div>
+                            </div>
+                            <div class="h2h-item">
+                                <div class="h2h-date">01/04/2023</div>
+                                <div class="h2h-teams">
+                                    <span class="h2h-home">Manchester City</span>
+                                    <span class="h2h-score">4-1</span>
+                                    <span class="h2h-away">Liverpool</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Lista de Relatórios -->
+        <div class="reports-list mt-4">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="report-card">
+                        <div class="report-header">
+                            <span class="report-date">22/05/2025</span>
+                            <span class="report-league">Premier League</span>
+                        </div>
+                        <div class="report-teams">
+                            <span>Manchester City vs Liverpool</span>
+                        </div>
+                        <div class="report-preview">
+                            <p>Análise completa com foco nos mercados de golos, vencedor, cantos e cartões.</p>
+                        </div>
+                        <div class="report-suggestions">
+                            <div class="suggestion-item">
+                                <span class="suggestion-market">Golos:</span>
+                                <span class="suggestion-pick">Over 2.5</span>
+                                <div class="confidence-rating small">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="suggestion-item">
+                                <span class="suggestion-market">Cantos:</span>
+                                <span class="suggestion-pick">Over 10.5</span>
+                                <div class="confidence-rating small">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="report-footer">
+                            <a href="/relatorios?jogo=1" class="btn btn-primary btn-sm w-100">Ver Análise Completa</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="report-card">
+                        <div class="report-header">
+                            <span class="report-date">22/05/2025</span>
+                            <span class="report-league">La Liga</span>
+                        </div>
+                        <div class="report-teams">
+                            <span>Barcelona vs Real Madrid</span>
+                        </div>
+                        <div class="report-preview">
+                            <p>Análise completa com foco nos mercados de golos, vencedor, cantos e cartões.</p>
+                        </div>
+                        <div class="report-suggestions">
+                            <div class="suggestion-item">
+                                <span class="suggestion-market">Vencedor:</span>
+                                <span class="suggestion-pick">Barcelona</span>
+                                <div class="confidence-rating small">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="suggestion-item">
+                                <span class="suggestion-market">Golos:</span>
+                                <span class="suggestion-pick">Over 2.5</span>
+                                <div class="confidence-rating small">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="report-footer">
+                            <a href="/relatorios?jogo=2" class="btn btn-primary btn-sm w-100">Ver Análise Completa</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="report-card">
+                        <div class="report-header">
+                            <span class="report-date">22/05/2025</span>
+                            <span class="report-league">Serie A</span>
+                        </div>
+                        <div class="report-teams">
+                            <span>Juventus vs Inter</span>
+                        </div>
+                        <div class="report-preview">
+                            <p>Análise completa com foco nos mercados de golos, vencedor, cantos e cartões.</p>
+                        </div>
+                        <div class="report-suggestions">
+                            <div class="suggestion-item">
+                                <span class="suggestion-market">Golos:</span>
+                                <span class="suggestion-pick">Under 2.5</span>
+                                <div class="confidence-rating small">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                            <div class="suggestion-item">
+                                <span class="suggestion-market">Cartões:</span>
+                                <span class="suggestion-pick">Over 4.5</span>
+                                <div class="confidence-rating small">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="report-footer">
+                            <a href="/relatorios?jogo=3" class="btn btn-primary btn-sm w-100">Ver Análise Completa</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Histórico de Relatórios -->
+            <div class="reports-history mt-5">
+                <h3>Histórico de Relatórios</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Liga</th>
+                                <th>Jogo</th>
+                                <th>Sugestões</th>
+                                <th>Resultado</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>21/05/2025</td>
+                                <td>Champions League</td>
+                                <td>Bayern Munich vs PSG</td>
+                                <td>
+                                    <span class="badge bg-primary">Over 2.5</span>
+                                    <span class="badge bg-success">Bayern Vence</span>
+                                </td>
+                                <td><span class="text-success">3-1 (Acerto)</span></td>
+                                <td><a href="#" class="btn btn-sm btn-outline-primary">Ver</a></td>
+                            </tr>
+                            <tr>
+                                <td>21/05/2025</td>
+                                <td>Champions League</td>
+                                <td>AC Milan vs Dortmund</td>
+                                <td>
+                                    <span class="badge bg-primary">Under 2.5</span>
+                                    <span class="badge bg-warning text-dark">Over 9.5 Cantos</span>
+                                </td>
+                                <td><span class="text-success">1-0 (Acerto)</span></td>
+                                <td><a href="#" class="btn btn-sm btn-outline-primary">Ver</a></td>
+                            </tr>
+                            <tr>
+                                <td>20/05/2025</td>
+                                <td>Premier League</td>
+                                <td>Arsenal vs Chelsea</td>
+                                <td>
+                                    <span class="badge bg-primary">BTTS</span>
+                                    <span class="badge bg-danger">Over 3.5 Cartões</span>
+                                </td>
+                                <td><span class="text-danger">2-0 (Falha)</span></td>
+                                <td><a href="#" class="btn btn-sm btn-outline-primary">Ver</a></td>
+                            </tr>
+                            <tr>
+                                <td>20/05/2025</td>
+                                <td>La Liga</td>
+                                <td>Atletico Madrid vs Sevilla</td>
+                                <td>
+                                    <span class="badge bg-primary">Under 2.5</span>
+                                    <span class="badge bg-success">Atletico Vence</span>
+                                </td>
+                                <td><span class="text-success">1-0 (Acerto)</span></td>
+                                <td><a href="#" class="btn btn-sm btn-outline-primary">Ver</a></td>
+                            </tr>
+                            <tr>
+                                <td>19/05/2025</td>
+                                <td>Serie A</td>
+                                <td>Roma vs Napoli</td>
+                                <td>
+                                    <span class="badge bg-primary">Over 2.5</span>
+                                    <span class="badge bg-warning text-dark">Over 10.5 Cantos</span>
+                                </td>
+                                <td><span class="text-success">2-2 (Acerto)</span></td>
+                                <td><a href="#" class="btn btn-sm btn-outline-primary">Ver</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container mt-3 d-flex justify-content-center">
+                    <nav aria-label="Navegação de páginas">
+                        <ul class="pagination">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Próxima</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>FC Statistics</h4>
+                    <p>Análises estatísticas para apostas desportivas de futebol.</p>
+                    <div class="social-links">
+                        <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h4>Links Rápidos</h4>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/relatorios">Relatórios Diários</a></li>
+                        <li><a href="/analise-mercados">Análise de Mercados</a></li>
+                        <li><a href="/comparacao-odds">Comparação de Odds</a></li>
+                        <li><a href="/estatisticas">Estatísticas Históricas</a></li>
+                        <li><a href="/sobre">Sobre</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4>Aviso Legal</h4>
+                    <p>As análises e sugestões apresentadas são baseadas em dados estatísticos e não garantem resultados. Aposte com responsabilidade.</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <p class="copyright">© 2025 FC Statistics. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Script específico para a página de relatórios
+        document.addEventListener('DOMContentLoaded', function() {
+            // Manipuladores para filtros rápidos de data
+            const quickDateButtons = document.querySelectorAll('.quick-date-filter button');
+            const dateSelector = document.getElementById('date-selector');
+            
+            if (quickDateButtons.length > 0 && dateSelector) {
+                quickDateButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const dateType = this.getAttribute('data-date');
+                        const today = new Date();
+                        let targetDate = new Date();
+                        
+                        switch(dateType) {
+                            case 'today':
+                                // Já é hoje por padrão
+                                break;
+                            case 'yesterday':
+                                targetDate.setDate(today.getDate() - 1);
+                                break;
+                            case 'week':
+                                // Definir para o início da semana (segunda-feira)
+                                const dayOfWeek = today.getDay(); // 0 = Domingo, 1 = Segunda, etc.
+                                const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Ajustar para considerar segunda como início
+                                targetDate.setDate(today.getDate() - diff);
+                                break;
+                        }
+                        
+                        // Formatar a data para o formato YYYY-MM-DD
+                        const formattedDate = targetDate.toISOString().split('T')[0];
+                        dateSelector.value = formattedDate;
+                        
+                        // Disparar evento de mudança para atualizar os relatórios
+                        const event = new Event('change');
+                        dateSelector.dispatchEvent(event);
+                    });
+                });
+            }
+            
+            // Adicionar estilos específicos para a página de relatórios
+            const style = document.createElement('style');
+            style.textContent = `
+                .page-header {
+                    margin-bottom: 2rem;
+                }
+                
+                .page-header h1 {
+                    color: var(--primary-color);
+                    font-weight: 700;
+                }
+                
+                .filter-section {
+                    background-color: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    margin-bottom: 2rem;
+                }
+                
+                .date-range-filter, .quick-date-filter {
+                    margin-bottom: 1rem;
+                }
+                
+                .report-card {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    padding: 1.5rem;
+                    height: 100%;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+                
+                .report-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+                }
+                
+                .report-header {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 1rem;
+                }
+                
+                .report-date {
+                    font-weight: 500;
+                    color: #6b7280;
+                }
+                
+                .report-league {
+                    font-weight: 600;
+                    color: var(--primary-color);
+                }
+                
+                .report-teams {
+                    font-weight: 700;
+                    font-size: 1.1rem;
+                    margin-bottom: 0.8rem;
+                }
+                
+                .report-preview {
+                    font-size: 0.9rem;
+                    color: #4b5563;
+                    margin-bottom: 1rem;
+                }
+                
+                .report-suggestions {
+                    margin-bottom: 1rem;
+                }
+                
+                .suggestion-item {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .suggestion-market {
+                    font-weight: 600;
+                    margin-right: 0.5rem;
+                    color: #4b5563;
+                }
+                
+                .suggestion-pick {
+                    font-weight: 500;
+                    color: var(--primary-color);
+                    margin-right: 0.5rem;
+                }
+                
+                .confidence-rating.small {
+                    font-size: 0.7rem;
+                }
+                
+                .report-footer {
+                    margin-top: auto;
+                }
+                
+                /* Estilos para relatório detalhado */
+                .detailed-report {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    padding: 2rem;
+                }
+                
+                .report-meta {
+                    display: flex;
+                    gap: 1.5rem;
+                    margin-top: 0.5rem;
+                    color: #6b7280;
+                }
+                
+                .report-meta span {
+                    display: flex;
+                    align-items: center;
+                }
+                
+                .report-meta i {
+                    margin-right: 0.5rem;
+                }
+                
+                .game-info-card {
+                    background-color: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                }
+                
+                .teams-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .team {
+                    text-align: center;
+                    flex: 1;
+                }
+                
+                .team-name {
+                    font-weight: 700;
+                    font-size: 1.3rem;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .team-form {
+                    display: flex;
+                    justify-content: center;
+                    gap: 0.3rem;
+                }
+                
+                .form-result {
+                    width: 25px;
+                    height: 25px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-weight: 600;
+                    font-size: 0.8rem;
+                    color: white;
+                }
+                
+                .form-result.win {
+                    background-color: var(--success-color);
+                }
+                
+                .form-result.draw {
+                    background-color: var(--warning-color);
+                }
+                
+                .form-result.loss {
+                    background-color: var(--danger-color);
+                }
+                
+                .vs-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    padding: 0 1rem;
+                }
+                
+                .vs {
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    color: #6b7280;
+                }
+                
+                .game-time {
+                    font-size: 0.9rem;
+                    color: #6b7280;
+                    margin-top: 0.3rem;
+                }
+                
+                .market-analysis h3 {
+                    color: var(--primary-color);
+                    font-size: 1.3rem;
+                    font-weight: 600;
+                    margin-bottom: 1.5rem;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding-bottom: 0.5rem;
+                }
+                
+                .market-section {
+                    margin-bottom: 2rem;
+                    padding-bottom: 1.5rem;
+                    border-bottom: 1px solid #e5e7eb;
+                }
+                
+                .market-section:last-child {
+                    border-bottom: none;
+                    margin-bottom: 0;
+                    padding-bottom: 0;
+                }
+                
+                .market-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 1rem;
+                }
+                
+                .market-header h4 {
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: var(--dark-color);
+                    margin: 0;
+                }
+                
+                .market-header h4 i {
+                    margin-right: 0.5rem;
+                    color: var(--primary-color);
+                }
+                
+                .market-content p {
+                    margin-bottom: 1rem;
+                    color: #4b5563;
+                }
+                
+                .suggestion-box {
+                    background-color: #f0f4ff;
+                    border-radius: 8px;
+                    padding: 1rem;
+                    margin-top: 1rem;
+                    display: flex;
+                    align-items: center;
+                }
+                
+                .suggestion-title {
+                    font-weight: 600;
+                    margin-right: 1rem;
+                    color: var(--primary-color);
+                }
+                
+                .suggestion-content {
+                    display: flex;
+                    justify-content: space-between;
+                    flex: 1;
+                }
+                
+                .odds-comparison-card, .head-to-head-card {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    padding: 1.5rem;
+                }
+                
+                .odds-comparison-card h3, .head-to-head-card h3 {
+                    color: var(--primary-color);
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    margin-bottom: 1rem;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding-bottom: 0.5rem;
+                }
+                
+                .best-odd {
+                    font-weight: 700;
+                    color: var(--success-color);
+                }
+                
+                .h2h-list {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.8rem;
+                }
+                
+                .h2h-item {
+                    display: flex;
+                    flex-direction: column;
+                    padding: 0.8rem;
+                    background-color: #f8f9fa;
+                    border-radius: 6px;
+                }
+                
+                .h2h-date {
+                    font-size: 0.8rem;
+                    color: #6b7280;
+                    margin-bottom: 0.3rem;
+                }
+                
+                .h2h-teams {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .h2h-home, .h2h-away {
+                    font-weight: 500;
+                    font-size: 0.9rem;
+                }
+                
+                .h2h-score {
+                    font-weight: 700;
+                    color: var(--primary-color);
+                }
+                
+                .reports-history h3 {
+                    color: var(--primary-color);
+                    font-size: 1.3rem;
+                    font-weight: 600;
+                    margin-bottom: 1rem;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding-bottom: 0.5rem;
+                }
+                
+                .badge {
+                    font-weight: 500;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

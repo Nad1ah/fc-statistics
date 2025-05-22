@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Mercados - FC Statistics</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="logo-text">FC Statistics</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/relatorios">Relatórios Diários</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Análise de Mercados
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item {% if tipo == 'gols' %}active{% endif %}" href="/analise-mercados?tipo=gols">Golos</a></li>
+                            <li><a class="dropdown-item {% if tipo == 'vencedor' %}active{% endif %}" href="/analise-mercados?tipo=vencedor">Vencedor</a></li>
+                            <li><a class="dropdown-item {% if tipo == 'cantos' %}active{% endif %}" href="/analise-mercados?tipo=cantos">Cantos</a></li>
+                            <li><a class="dropdown-item {% if tipo == 'cartoes' %}active{% endif %}" href="/analise-mercados?tipo=cartoes">Cartões</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/comparacao-odds">Comparação de Odds</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/estatisticas">Estatísticas Históricas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sobre">Sobre</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link telegram-link" href="#" target="_blank">
+                            <i class="fab fa-telegram"></i> Canal Telegram
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container mt-4">
+        <!-- Cabeçalho da Página -->
+        <div class="page-header">
+            {% if tipo == 'gols' %}
+                <h1>Análise de Mercado: Golos</h1>
+                <p class="lead">Estatísticas e tendências para apostas no mercado de golos.</p>
+            {% elif tipo == 'vencedor' %}
+                <h1>Análise de Mercado: Vencedor</h1>
+                <p class="lead">Estatísticas e tendências para apostas no mercado de vencedor.</p>
+            {% elif tipo == 'cantos' %}
+                <h1>Análise de Mercado: Cantos</h1>
+                <p class="lead">Estatísticas e tendências para apostas no mercado de cantos.</p>
+            {% elif tipo == 'cartoes' %}
+                <h1>Análise de Mercado: Cartões</h1>
+                <p class="lead">Estatísticas e tendências para apostas no mercado de cartões.</p>
+            {% else %}
+                <h1>Análise de Mercado: Golos</h1>
+                <p class="lead">Estatísticas e tendências para apostas no mercado de golos.</p>
+            {% endif %}
+        </div>
+
+        <!-- Filtros -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="league-filter" class="form-label">Liga:</label>
+                        <select id="league-filter" class="form-select">
+                            <option value="all">Todas as Ligas</option>
+                            <option value="premier-league">Premier League</option>
+                            <option value="la-liga">La Liga</option>
+                            <option value="serie-a">Serie A</option>
+                            <option value="bundesliga">Bundesliga</option>
+                            <option value="ligue-1">Ligue 1</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="team-filter" class="form-label">Equipa:</label>
+                        <select id="team-filter" class="form-select">
+                            <option value="all">Todas as Equipas</option>
+                            <option value="manchester-city">Manchester City</option>
+                            <option value="liverpool">Liverpool</option>
+                            <option value="barcelona">Barcelona</option>
+                            <option value="real-madrid">Real Madrid</option>
+                            <option value="juventus">Juventus</option>
+                            <option value="inter">Inter</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="period-filter" class="form-label">Período:</label>
+                        <select id="period-filter" class="form-select">
+                            <option value="season">Temporada Atual</option>
+                            <option value="last-10">Últimos 10 Jogos</option>
+                            <option value="last-5">Últimos 5 Jogos</option>
+                            <option value="home">Jogos em Casa</option>
+                            <option value="away">Jogos Fora</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo Específico por Tipo de Mercado -->
+        {% if tipo == 'gols' %}
+            <!-- Análise de Golos -->
+            <div class="market-content mt-4">
+                <div class="row">
+                    <!-- Gráfico Principal -->
+                    <div class="col-md-8">
+                        <div class="chart-card">
+                            <h3>Distribuição de Golos por Jogo</h3>
+                            <div class="chart-container">
+                                <canvas id="goalsDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Estatísticas Rápidas -->
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h3>Estatísticas de Golos</h3>
+                            <div class="quick-stats">
+                                <div class="stat-item">
+                                    <div class="stat-label">Média de Golos por Jogo</div>
+                                    <div class="stat-value">2.74</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos Over 2.5</div>
+                                    <div class="stat-value">58.3%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos BTTS</div>
+                                    <div class="stat-value">52.1%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos Over 3.5</div>
+                                    <div class="stat-value">32.7%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos Under 1.5</div>
+                                    <div class="stat-value">18.9%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top Equipas -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <h3>Top 10 Equipas - Over 2.5 Golos</h3>
+                            <div class="stats-table-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipa</th>
+                                            <th>Jogos</th>
+                                            <th>Over 2.5</th>
+                                            <th>%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Manchester City</td>
+                                            <td>10</td>
+                                            <td>8</td>
+                                            <td>80%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bayern Munich</td>
+                                            <td>10</td>
+                                            <td>7</td>
+                                            <td>70%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Liverpool</td>
+                                            <td>10</td>
+                                            <td>7</td>
+                                            <td>70%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PSG</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Barcelona</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Real Madrid</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Arsenal</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Napoli</td>
+                                            <td>10</td>
+                                            <td>5</td>
+                                            <td>50%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dortmund</td>
+                                            <td>10</td>
+                                            <td>5</td>
+                                            <td>50%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Chelsea</td>
+                                            <td>10</td>
+                                            <td>5</td>
+                                            <td>50%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <h3>Top 10 Equipas - BTTS (Ambas Marcam)</h3>
+                            <div class="stats-table-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipa</th>
+                                            <th>Jogos</th>
+                                            <th>BTTS</th>
+                                            <th>%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Liverpool</td>
+                                            <td>10</td>
+                                            <td>7</td>
+                                            <td>70%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Manchester City</td>
+                                            <td>10</td>
+                                            <td>7</td>
+                                            <td>70%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Real Madrid</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Barcelona</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Arsenal</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Chelsea</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bayern Munich</td>
+                                            <td>10</td>
+                                            <td>5</td>
+                                            <td>50%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dortmund</td>
+                                            <td>10</td>
+                                            <td>5</td>
+                                            <td>50%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Inter</td>
+                                            <td>10</td>
+                                            <td>5</td>
+                                            <td>50%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Atletico Madrid</td>
+                                            <td>10</td>
+                                            <td>4</td>
+                                            <td>40%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tendências e Análises -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="trends-card">
+                            <h3>Tendências e Análises</h3>
+                            <div class="trends-content">
+                                <p>A análise dos dados de golos da temporada atual revela várias tendências significativas que podem ser úteis para apostadores:</p>
+                                
+                                <div class="trend-item">
+                                    <h4>1. Aumento de Golos em Jogos da Premier League</h4>
+                                    <p>A Premier League tem apresentado uma média de 2.92 golos por jogo, acima da média histórica de 2.72. Isto representa um aumento de 7.4% em relação à temporada anterior, tornando as apostas em Over 2.5 golos particularmente atrativas nesta liga.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>2. Equipas com Melhor Desempenho em BTTS</h4>
+                                    <p>Liverpool e Manchester City lideram as estatísticas de "Ambas as Equipas Marcam" com 70% dos seus jogos terminando com golos de ambos os lados. Isto é particularmente notável em jogos fora de casa, onde a percentagem sobe para 80%.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>3. Padrões de Golos por Período de Jogo</h4>
+                                    <p>Existe uma tendência crescente de golos marcados na segunda parte dos jogos, com 58% dos golos sendo marcados após o intervalo. Isto sugere valor potencial em apostas ao vivo em Over golos na segunda parte, especialmente em jogos que permanecem empatados ao intervalo.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>4. Impacto das Condições Meteorológicas</h4>
+                                    <p>Jogos disputados sob chuva forte têm apresentado uma média de golos significativamente menor (2.1 por jogo) em comparação com jogos em condições secas (2.9 por jogo). Este fator deve ser considerado ao analisar apostas Under/Over em dias de chuva.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% elif tipo == 'vencedor' %}
+            <!-- Análise de Vencedor -->
+            <div class="market-content mt-4">
+                <div class="row">
+                    <!-- Gráfico Principal -->
+                    <div class="col-md-8">
+                        <div class="chart-card">
+                            <h3>Distribuição de Resultados</h3>
+                            <div class="chart-container">
+                                <canvas id="resultsDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Estatísticas Rápidas -->
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h3>Estatísticas de Resultados</h3>
+                            <div class="quick-stats">
+                                <div class="stat-item">
+                                    <div class="stat-label">% Vitórias Casa</div>
+                                    <div class="stat-value">45.7%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Empates</div>
+                                    <div class="stat-value">24.3%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Vitórias Fora</div>
+                                    <div class="stat-value">30.0%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos Sem Empate</div>
+                                    <div class="stat-value">75.7%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Dupla Hipótese (1X)</div>
+                                    <div class="stat-value">70.0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top Equipas -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <h3>Top 10 Equipas - Melhor Aproveitamento em Casa</h3>
+                            <div class="stats-table-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipa</th>
+                                            <th>Jogos</th>
+                                            <th>Vitórias</th>
+                                            <th>%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Manchester City</td>
+                                            <td>10</td>
+                                            <td>8</td>
+                                            <td>80%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bayern Munich</td>
+                                            <td>10</td>
+                                            <td>8</td>
+                                            <td>80%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Barcelona</td>
+                                            <td>10</td>
+                                            <td>7</td>
+                                            <td>70%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Liverpool</td>
+                                            <td>10</td>
+                                            <td>7</td>
+                                            <td>70%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PSG</td>
+                                            <td>10</td>
+                                            <td>7</td>
+                                            <td>70%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Real Madrid</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Arsenal</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Juventus</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Inter</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Atletico Madrid</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <h3>Top 10 Equipas - Melhor Aproveitamento Fora</h3>
+                            <div class="stats-table-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipa</th>
+                                            <th>Jogos</th>
+                                            <th>Vitórias</th>
+                                            <th>%</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Liverpool</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Manchester City</td>
+                                            <td>10</td>
+                                            <td>6</td>
+                                            <td>60%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bayern Munich</td>
+                                            <td>10</td>
+                                            <td>5</td>
+                                            <td>50%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Real Madrid</td>
+                                            <td>10</td>
+                                            <td>5</td>
+                                            <td>50%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PSG</td>
+                                            <td>10</td>
+                                            <td>5</td>
+                                            <td>50%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Barcelona</td>
+                                            <td>10</td>
+                                            <td>4</td>
+                                            <td>40%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Arsenal</td>
+                                            <td>10</td>
+                                            <td>4</td>
+                                            <td>40%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Chelsea</td>
+                                            <td>10</td>
+                                            <td>4</td>
+                                            <td>40%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dortmund</td>
+                                            <td>10</td>
+                                            <td>3</td>
+                                            <td>30%</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Juventus</td>
+                                            <td>10</td>
+                                            <td>3</td>
+                                            <td>30%</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tendências e Análises -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="trends-card">
+                            <h3>Tendências e Análises</h3>
+                            <div class="trends-content">
+                                <p>A análise dos resultados da temporada atual revela várias tendências significativas que podem ser úteis para apostadores:</p>
+                                
+                                <div class="trend-item">
+                                    <h4>1. Vantagem Casa Diminuindo</h4>
+                                    <p>A percentagem de vitórias em casa caiu de 48.3% na temporada passada para 45.7% na atual, indicando uma redução na vantagem de jogar em casa. Isto pode estar relacionado com a maior adaptação das equipas a jogar sem a pressão total dos adeptos após a pandemia.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>2. Equipas de Topo Dominantes Fora de Casa</h4>
+                                    <p>Liverpool e Manchester City têm um aproveitamento de 60% em jogos fora, significativamente acima da média da liga (30%). Isto sugere valor em apostar nestas equipas mesmo quando jogam fora de casa.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>3. Padrões de Resultados por Liga</h4>
+                                    <p>A Premier League tem a maior percentagem de vitórias fora (33.2%), enquanto a Serie A tem a maior percentagem de empates (27.8%). Estas diferenças entre ligas devem ser consideradas ao analisar apostas em diferentes competições.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>4. Impacto do Calendário Congestionado</h4>
+                                    <p>Equipas que jogam a cada 3-4 dias devido a competições europeias têm uma queda de 12% no aproveitamento em jogos domésticos imediatamente após partidas internacionais. Este fator deve ser considerado ao analisar jogos de equipas com calendários congestionados.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% elif tipo == 'cantos' %}
+            <!-- Análise de Cantos -->
+            <div class="market-content mt-4">
+                <div class="row">
+                    <!-- Gráfico Principal -->
+                    <div class="col-md-8">
+                        <div class="chart-card">
+                            <h3>Distribuição de Cantos por Jogo</h3>
+                            <div class="chart-container">
+                                <canvas id="cornersDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Estatísticas Rápidas -->
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h3>Estatísticas de Cantos</h3>
+                            <div class="quick-stats">
+                                <div class="stat-item">
+                                    <div class="stat-label">Média de Cantos por Jogo</div>
+                                    <div class="stat-value">10.3</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos Over 9.5 Cantos</div>
+                                    <div class="stat-value">62.7%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos Over 10.5 Cantos</div>
+                                    <div class="stat-value">48.3%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos Under 8.5 Cantos</div>
+                                    <div class="stat-value">25.1%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Média 1ª Parte / 2ª Parte</div>
+                                    <div class="stat-value">4.2 / 6.1</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top Equipas -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <h3>Top 10 Equipas - Média de Cantos a Favor</h3>
+                            <div class="stats-table-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipa</th>
+                                            <th>Jogos</th>
+                                            <th>Média</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Liverpool</td>
+                                            <td>10</td>
+                                            <td>7.8</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Manchester City</td>
+                                            <td>10</td>
+                                            <td>7.5</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Chelsea</td>
+                                            <td>10</td>
+                                            <td>6.9</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Real Madrid</td>
+                                            <td>10</td>
+                                            <td>6.7</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Barcelona</td>
+                                            <td>10</td>
+                                            <td>6.5</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bayern Munich</td>
+                                            <td>10</td>
+                                            <td>6.3</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Arsenal</td>
+                                            <td>10</td>
+                                            <td>6.1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PSG</td>
+                                            <td>10</td>
+                                            <td>5.9</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Juventus</td>
+                                            <td>10</td>
+                                            <td>5.7</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dortmund</td>
+                                            <td>10</td>
+                                            <td>5.5</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <h3>Top 10 Equipas - Média Total de Cantos por Jogo</h3>
+                            <div class="stats-table-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipa</th>
+                                            <th>Jogos</th>
+                                            <th>Média</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Liverpool</td>
+                                            <td>10</td>
+                                            <td>11.3</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Manchester City</td>
+                                            <td>10</td>
+                                            <td>10.7</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Chelsea</td>
+                                            <td>10</td>
+                                            <td>10.5</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Arsenal</td>
+                                            <td>10</td>
+                                            <td>10.3</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Barcelona</td>
+                                            <td>10</td>
+                                            <td>10.2</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Real Madrid</td>
+                                            <td>10</td>
+                                            <td>10.1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bayern Munich</td>
+                                            <td>10</td>
+                                            <td>9.8</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Juventus</td>
+                                            <td>10</td>
+                                            <td>9.6</td>
+                                        </tr>
+                                        <tr>
+                                            <td>PSG</td>
+                                            <td>10</td>
+                                            <td>9.5</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dortmund</td>
+                                            <td>10</td>
+                                            <td>9.3</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tendências e Análises -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="trends-card">
+                            <h3>Tendências e Análises</h3>
+                            <div class="trends-content">
+                                <p>A análise dos dados de cantos da temporada atual revela várias tendências significativas que podem ser úteis para apostadores:</p>
+                                
+                                <div class="trend-item">
+                                    <h4>1. Maior Concentração na Segunda Parte</h4>
+                                    <p>Aproximadamente 59% dos cantos ocorrem na segunda parte dos jogos, com um aumento significativo nos últimos 15 minutos. Isto sugere valor em apostas ao vivo em Over cantos na segunda parte, especialmente em jogos equilibrados.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>2. Equipas de Posse Dominante</h4>
+                                    <p>Liverpool e Manchester City, equipas conhecidas pelo seu estilo de jogo baseado em posse de bola, lideram as estatísticas de cantos com médias de 7.8 e 7.5 cantos a favor por jogo, respectivamente. Jogos envolvendo estas equipas têm uma média total de cantos significativamente acima da média da liga.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>3. Padrões de Cantos por Liga</h4>
+                                    <p>A Premier League tem a maior média de cantos por jogo (10.8), seguida pela Bundesliga (10.5). Em contraste, a Serie A tem a menor média (9.7). Estas diferenças entre ligas devem ser consideradas ao analisar apostas em diferentes competições.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>4. Impacto do Resultado no Jogo</h4>
+                                    <p>Equipas que estão a perder nos últimos 20 minutos de jogo geram, em média, 2.3 cantos a mais do que quando o jogo está empatado. Este fator deve ser considerado em apostas ao vivo, especialmente quando equipas ofensivas estão a perder.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% elif tipo == 'cartoes' %}
+            <!-- Análise de Cartões -->
+            <div class="market-content mt-4">
+                <div class="row">
+                    <!-- Gráfico Principal -->
+                    <div class="col-md-8">
+                        <div class="chart-card">
+                            <h3>Distribuição de Cartões por Jogo</h3>
+                            <div class="chart-container">
+                                <canvas id="cardsDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Estatísticas Rápidas -->
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h3>Estatísticas de Cartões</h3>
+                            <div class="quick-stats">
+                                <div class="stat-item">
+                                    <div class="stat-label">Média de Cartões por Jogo</div>
+                                    <div class="stat-value">3.8</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos Over 3.5 Cartões</div>
+                                    <div class="stat-value">53.2%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos Over 4.5 Cartões</div>
+                                    <div class="stat-value">38.7%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">% Jogos Under 2.5 Cartões</div>
+                                    <div class="stat-value">27.3%</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-label">Média 1ª Parte / 2ª Parte</div>
+                                    <div class="stat-value">1.3 / 2.5</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top Equipas -->
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <h3>Top 10 Equipas - Mais Cartões Recebidos</h3>
+                            <div class="stats-table-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipa</th>
+                                            <th>Jogos</th>
+                                            <th>Média</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Atletico Madrid</td>
+                                            <td>10</td>
+                                            <td>2.8</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sevilla</td>
+                                            <td>10</td>
+                                            <td>2.6</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Getafe</td>
+                                            <td>10</td>
+                                            <td>2.5</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bologna</td>
+                                            <td>10</td>
+                                            <td>2.4</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Napoli</td>
+                                            <td>10</td>
+                                            <td>2.3</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Roma</td>
+                                            <td>10</td>
+                                            <td>2.3</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Burnley</td>
+                                            <td>10</td>
+                                            <td>2.2</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Everton</td>
+                                            <td>10</td>
+                                            <td>2.1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Marseille</td>
+                                            <td>10</td>
+                                            <td>2.1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Valencia</td>
+                                            <td>10</td>
+                                            <td>2.0</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="stats-card">
+                            <h3>Top 10 Equipas - Média Total de Cartões por Jogo</h3>
+                            <div class="stats-table-container">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Equipa</th>
+                                            <th>Jogos</th>
+                                            <th>Média</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Atletico Madrid</td>
+                                            <td>10</td>
+                                            <td>5.3</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sevilla</td>
+                                            <td>10</td>
+                                            <td>5.1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Roma</td>
+                                            <td>10</td>
+                                            <td>4.9</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Getafe</td>
+                                            <td>10</td>
+                                            <td>4.8</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Napoli</td>
+                                            <td>10</td>
+                                            <td>4.7</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Marseille</td>
+                                            <td>10</td>
+                                            <td>4.6</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Valencia</td>
+                                            <td>10</td>
+                                            <td>4.5</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Everton</td>
+                                            <td>10</td>
+                                            <td>4.4</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bologna</td>
+                                            <td>10</td>
+                                            <td>4.3</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Burnley</td>
+                                            <td>10</td>
+                                            <td>4.2</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tendências e Análises -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="trends-card">
+                            <h3>Tendências e Análises</h3>
+                            <div class="trends-content">
+                                <p>A análise dos dados de cartões da temporada atual revela várias tendências significativas que podem ser úteis para apostadores:</p>
+                                
+                                <div class="trend-item">
+                                    <h4>1. Concentração na Segunda Parte</h4>
+                                    <p>Aproximadamente 66% dos cartões são mostrados na segunda parte dos jogos, com um aumento significativo nos últimos 15 minutos. Isto sugere valor em apostas ao vivo em Over cartões na segunda parte, especialmente em jogos tensos ou derbies.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>2. Equipas com Estilo Agressivo</h4>
+                                    <p>Atletico Madrid e Sevilla lideram as estatísticas de cartões com médias de 2.8 e 2.6 cartões recebidos por jogo, respectivamente. Jogos envolvendo estas equipas têm uma média total de cartões significativamente acima da média da liga.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>3. Padrões de Cartões por Liga</h4>
+                                    <p>La Liga tem a maior média de cartões por jogo (4.7), seguida pela Serie A (4.3). Em contraste, a Premier League tem a menor média (3.4). Estas diferenças entre ligas devem ser consideradas ao analisar apostas em diferentes competições.</p>
+                                </div>
+                                
+                                <div class="trend-item">
+                                    <h4>4. Impacto de Jogos Importantes</h4>
+                                    <p>Derbies e jogos entre rivais diretos apresentam, em média, 1.7 cartões a mais do que jogos regulares. Jogos decisivos para título ou rebaixamento também mostram um aumento significativo na média de cartões, especialmente nas últimas rodadas da temporada.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Conteúdo padrão se nenhum tipo específico for selecionado -->
+            <div class="market-content mt-4">
+                <div class="alert alert-info">
+                    <p>Selecione um mercado específico no menu para ver análises detalhadas.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>FC Statistics</h4>
+                    <p>Análises estatísticas para apostas desportivas de futebol.</p>
+                    <div class="social-links">
+                        <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h4>Links Rápidos</h4>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/relatorios">Relatórios Diários</a></li>
+                        <li><a href="/analise-mercados">Análise de Mercados</a></li>
+                        <li><a href="/comparacao-odds">Comparação de Odds</a></li>
+                        <li><a href="/estatisticas">Estatísticas Históricas</a></li>
+                        <li><a href="/sobre">Sobre</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4>Aviso Legal</h4>
+                    <p>As análises e sugestões apresentadas são baseadas em dados estatísticos e não garantem resultados. Aposte com responsabilidade.</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <p class="copyright">© 2025 FC Statistics. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        // Script específico para a página de análise de mercados
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar filtros
+            const leagueFilter = document.getElementById('league-filter');
+            const teamFilter = document.getElementById('team-filter');
+            const periodFilter = document.getElementById('period-filter');
+            
+            if (leagueFilter && teamFilter && periodFilter) {
+                [leagueFilter, teamFilter, periodFilter].forEach(filter => {
+                    filter.addEventListener('change', updateCharts);
+                });
+            }
+            
+            // Inicializar gráficos baseados no tipo de mercado
+            const tipo = '{{ tipo }}';
+            initCharts(tipo);
+            
+            // Adicionar estilos específicos para a página
+            const style = document.createElement('style');
+            style.textContent = `
+                .page-header {
+                    margin-bottom: 2rem;
+                }
+                
+                .page-header h1 {
+                    color: var(--primary-color);
+                    font-weight: 700;
+                }
+                
+                .filter-section {
+                    background-color: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 1.5rem;
+                    margin-bottom: 2rem;
+                }
+                
+                .chart-card, .stats-card, .trends-card {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    padding: 1.5rem;
+                    height: 100%;
+                    margin-bottom: 1.5rem;
+                }
+                
+                .chart-card h3, .stats-card h3, .trends-card h3 {
+                    color: var(--primary-color);
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    margin-bottom: 1rem;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding-bottom: 0.5rem;
+                }
+                
+                .chart-container {
+                    height: 300px;
+                    position: relative;
+                }
+                
+                .quick-stats {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+                
+                .stat-item {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 0.8rem;
+                    background-color: #f8f9fa;
+                    border-radius: 6px;
+                }
+                
+                .stat-label {
+                    font-weight: 500;
+                    color: #4b5563;
+                }
+                
+                .stat-value {
+                    font-weight: 700;
+                    color: var(--primary-color);
+                    font-size: 1.1rem;
+                }
+                
+                .trends-content {
+                    color: #4b5563;
+                }
+                
+                .trend-item {
+                    margin-bottom: 1.5rem;
+                }
+                
+                .trend-item h4 {
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    color: var(--dark-color);
+                    margin-bottom: 0.5rem;
+                }
+                
+                .trend-item p {
+                    margin-bottom: 0;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+        
+        // Função para inicializar gráficos baseados no tipo de mercado
+        function initCharts(tipo) {
+            if (tipo === 'gols') {
+                // Gráfico de distribuição de golos
+                const ctx = document.getElementById('goalsDistributionChart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['0', '1', '2', '3', '4', '5', '6+'],
+                            datasets: [{
+                                label: 'Percentagem de Jogos',
+                                data: [8.2, 15.7, 23.4, 26.5, 14.3, 8.6, 3.3],
+                                backgroundColor: '#3b82f6',
+                                borderColor: '#1e3a8a',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Distribuição de Golos por Jogo (%)'
+                                },
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 30,
+                                    title: {
+                                        display: true,
+                                        text: 'Percentagem de Jogos'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Número de Golos'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } else if (tipo === 'vencedor') {
+                // Gráfico de distribuição de resultados
+                const ctx = document.getElementById('resultsDistributionChart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Vitória Casa', 'Empate', 'Vitória Fora'],
+                            datasets: [{
+                                data: [45.7, 24.3, 30.0],
+                                backgroundColor: ['#3b82f6', '#f59e0b', '#ef4444'],
+                                borderColor: '#ffffff',
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Distribuição de Resultados (%)'
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                }
+            } else if (tipo === 'cantos') {
+                // Gráfico de distribuição de cantos
+                const ctx = document.getElementById('cornersDistributionChart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['0-5', '6-8', '9-10', '11-12', '13-15', '16+'],
+                            datasets: [{
+                                label: 'Percentagem de Jogos',
+                                data: [7.3, 17.8, 26.9, 24.1, 16.5, 7.4],
+                                backgroundColor: '#3b82f6',
+                                borderColor: '#1e3a8a',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Distribuição de Cantos por Jogo (%)'
+                                },
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 30,
+                                    title: {
+                                        display: true,
+                                        text: 'Percentagem de Jogos'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Número de Cantos'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } else if (tipo === 'cartoes') {
+                // Gráfico de distribuição de cartões
+                const ctx = document.getElementById('cardsDistributionChart');
+                if (ctx) {
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['0-1', '2-3', '4-5', '6-7', '8+'],
+                            datasets: [{
+                                label: 'Percentagem de Jogos',
+                                data: [12.5, 34.2, 31.8, 15.7, 5.8],
+                                backgroundColor: '#3b82f6',
+                                borderColor: '#1e3a8a',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Distribuição de Cartões por Jogo (%)'
+                                },
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 40,
+                                    title: {
+                                        display: true,
+                                        text: 'Percentagem de Jogos'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Número de Cartões'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+        
+        // Função para atualizar gráficos baseados nos filtros
+        function updateCharts() {
+            // Esta função seria implementada para atualizar os gráficos com dados reais
+            // baseados nos filtros selecionados. Por enquanto, apenas simula uma atualização.
+            console.log('Atualizando gráficos com novos filtros...');
+            // Em uma implementação real, faria uma chamada à API para obter novos dados
+        }
+    </script>
+</body>
+</html>

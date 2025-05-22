@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração do Telegram - FC Statistics</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="logo-text">FC Statistics</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/relatorios">Relatórios Diários</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Análise de Mercados
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=gols">Golos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=vencedor">Vencedor</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cantos">Cantos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cartoes">Cartões</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/comparacao-odds">Comparação de Odds</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/estatisticas">Estatísticas Históricas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/telegram-config">Telegram</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sobre">Sobre</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container mt-4">
+        <!-- Cabeçalho da Página -->
+        <div class="page-header">
+            <h1>Configuração do Canal Telegram</h1>
+            <p class="lead">Configure e gerencie a integração com o canal Telegram para publicação automática de análises e sugestões.</p>
+        </div>
+
+        <!-- Informações do Canal -->
+        <div class="telegram-info-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="telegram-card">
+                        <div class="telegram-card-header">
+                            <i class="fab fa-telegram fa-2x"></i>
+                            <h2>Informações do Canal</h2>
+                        </div>
+                        <div class="telegram-card-body">
+                            <div class="info-item">
+                                <div class="info-label">Nome do Canal:</div>
+                                <div class="info-value">{{ telegram_data.channel_name }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Link do Canal:</div>
+                                <div class="info-value">
+                                    <a href="{{ telegram_data.channel_link }}" target="_blank">{{ telegram_data.channel_link }}</a>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Inscritos:</div>
+                                <div class="info-value">{{ telegram_data.subscribers }}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Total de Posts:</div>
+                                <div class="info-value">{{ telegram_data.posts|length }}</div>
+                            </div>
+                        </div>
+                        <div class="telegram-card-footer">
+                            <a href="{{ telegram_data.channel_link }}" target="_blank" class="btn btn-primary">
+                                <i class="fab fa-telegram"></i> Visitar Canal
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="telegram-card">
+                        <div class="telegram-card-header">
+                            <i class="fas fa-cog fa-2x"></i>
+                            <h2>Configurações</h2>
+                        </div>
+                        <div class="telegram-card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> Para criar um canal Telegram, siga os passos abaixo:
+                                <ol class="mt-2 mb-0">
+                                    <li>Abra o aplicativo Telegram</li>
+                                    <li>Clique no botão de nova mensagem</li>
+                                    <li>Selecione "Novo Canal"</li>
+                                    <li>Defina o nome "FC Statistics" e uma descrição</li>
+                                    <li>Configure a privacidade do canal</li>
+                                    <li>Copie o link do canal e cole abaixo</li>
+                                </ol>
+                            </div>
+                            <form id="telegram-config-form" class="mt-3">
+                                <div class="mb-3">
+                                    <label for="channel-link" class="form-label">Link do Canal:</label>
+                                    <input type="text" class="form-control" id="channel-link" value="{{ telegram_data.channel_link }}">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Salvar Configurações</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Publicação de Posts -->
+        <div class="telegram-post-section mt-4">
+            <div class="telegram-card">
+                <div class="telegram-card-header">
+                    <i class="fas fa-paper-plane fa-2x"></i>
+                    <h2>Publicar no Canal</h2>
+                </div>
+                <div class="telegram-card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>Nota Importante:</strong> O agendamento automático de posts está temporariamente desativado. Todos os posts devem ser publicados manualmente.
+                    </div>
+                    
+                    <ul class="nav nav-tabs" id="postTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manual" type="button" role="tab" aria-controls="manual" aria-selected="true">Post Manual</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="daily-tab" data-bs-toggle="tab" data-bs-target="#daily" type="button" role="tab" aria-controls="daily" aria-selected="false">Relatório Diário</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="weekly-tab" data-bs-toggle="tab" data-bs-target="#weekly" type="button" role="tab" aria-controls="weekly" aria-selected="false">Resumo Semanal</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content mt-3" id="postTabsContent">
+                        <!-- Post Manual -->
+                        <div class="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
+                            <form id="manual-post-form">
+                                <div class="mb-3">
+                                    <label for="manual-post-content" class="form-label">Conteúdo do Post:</label>
+                                    <textarea class="form-control" id="manual-post-content" rows="10" placeholder="Digite o conteúdo do seu post aqui..."></textarea>
+                                    <div class="form-text">Suporte a formatação Markdown: *negrito*, _itálico_, [link](url)</div>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <button type="button" class="btn btn-outline-secondary" id="preview-manual-post">
+                                        <i class="fas fa-eye"></i> Pré-visualizar
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i> Publicar Agora
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Relatório Diário -->
+                        <div class="tab-pane fade" id="daily" role="tabpanel" aria-labelledby="daily-tab">
+                            <div class="mb-3">
+                                <label class="form-label">Gerar relatório diário com base nas análises do blog:</label>
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-outline-primary" id="generate-daily-report">
+                                        <i class="fas fa-sync-alt"></i> Gerar Relatório Diário
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="daily-report-content" class="form-label">Conteúdo do Relatório:</label>
+                                <textarea class="form-control" id="daily-report-content" rows="15" placeholder="O relatório diário será gerado aqui..."></textarea>
+                                <div class="form-text">Você pode editar o relatório antes de publicar.</div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary" id="preview-daily-report">
+                                    <i class="fas fa-eye"></i> Pré-visualizar
+                                </button>
+                                <button type="button" class="btn btn-primary" id="publish-daily-report">
+                                    <i class="fas fa-paper-plane"></i> Publicar Relatório
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Resumo Semanal -->
+                        <div class="tab-pane fade" id="weekly" role="tabpanel" aria-labelledby="weekly-tab">
+                            <div class="mb-3">
+                                <label class="form-label">Gerar resumo semanal com base nas análises do blog:</label>
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-outline-primary" id="generate-weekly-report">
+                                        <i class="fas fa-sync-alt"></i> Gerar Resumo Semanal
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="weekly-report-content" class="form-label">Conteúdo do Resumo:</label>
+                                <textarea class="form-control" id="weekly-report-content" rows="15" placeholder="O resumo semanal será gerado aqui..."></textarea>
+                                <div class="form-text">Você pode editar o resumo antes de publicar.</div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <button type="button" class="btn btn-outline-secondary" id="preview-weekly-report">
+                                    <i class="fas fa-eye"></i> Pré-visualizar
+                                </button>
+                                <button type="button" class="btn btn-primary" id="publish-weekly-report">
+                                    <i class="fas fa-paper-plane"></i> Publicar Resumo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico de Posts -->
+        <div class="telegram-history-section mt-4">
+            <div class="telegram-card">
+                <div class="telegram-card-header">
+                    <i class="fas fa-history fa-2x"></i>
+                    <h2>Histórico de Posts</h2>
+                </div>
+                <div class="telegram-card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Tipo</th>
+                                    <th>Data/Hora</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="posts-history-table">
+                                {% if telegram_data.posts %}
+                                    {% for post in telegram_data.posts %}
+                                    <tr>
+                                        <td>{{ post.id }}</td>
+                                        <td>{{ post.type }}</td>
+                                        <td>{{ post.created_at }}</td>
+                                        <td><span class="badge bg-success">{{ post.status }}</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary view-post" data-post-id="{{ post.id }}">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">Nenhum post publicado ainda.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Pré-visualização -->
+    <div class="modal fade" id="previewModal" tabindex="-1" aria-labelledby="previewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="previewModalLabel">Pré-visualização do Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="telegram-preview-container">
+                        <div class="telegram-preview-header">
+                            <div class="telegram-preview-channel">
+                                <i class="fab fa-telegram"></i> FC Statistics
+                            </div>
+                            <div class="telegram-preview-time">Agora</div>
+                        </div>
+                        <div class="telegram-preview-content" id="preview-content">
+                            <!-- Conteúdo da pré-visualização será inserido aqui -->
+                        </div>
+                        <div class="telegram-preview-footer">
+                            <div class="telegram-preview-views">
+                                <i class="fas fa-eye"></i> 0 visualizações
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>FC Statistics</h4>
+                    <p>Análises estatísticas para apostas desportivas de futebol.</p>
+                    <div class="social-links">
+                        <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h4>Links Rápidos</h4>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/relatorios">Relatórios Diários</a></li>
+                        <li><a href="/analise-mercados">Análise de Mercados</a></li>
+                        <li><a href="/comparacao-odds">Comparação de Odds</a></li>
+                        <li><a href="/estatisticas">Estatísticas Históricas</a></li>
+                        <li><a href="/sobre">Sobre</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4>Aviso Legal</h4>
+                    <p>As análises e sugestões apresentadas são baseadas em dados estatísticos e não garantem resultados. Aposte com responsabilidade.</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <p class="copyright">© 2025 FC Statistics. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar estilos específicos para a página
+            const style = document.createElement('style');
+            style.textContent = `
+                .page-header {
+                    margin-bottom: 2rem;
+                }
+                
+                .page-header h1 {
+                    color: var(--primary-color);
+                    font-weight: 700;
+                }
+                
+                .telegram-card {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    margin-bottom: 1.5rem;
+                    overflow: hidden;
+                }
+                
+                .telegram-card-header {
+                    background-color: #f8f9fa;
+                    padding: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    border-bottom: 1px solid #e5e7eb;
+                }
+                
+                .telegram-card-header i {
+                    color: var(--primary-color);
+                    margin-right: 1rem;
+                }
+                
+                .telegram-card-header h2 {
+                    margin: 0;
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: var(--primary-color);
+                }
+                
+                .telegram-card-body {
+                    padding: 1.5rem;
+                }
+                
+                .telegram-card-footer {
+                    padding: 1rem 1.5rem;
+                    background-color: #f8f9fa;
+                    border-top: 1px solid #e5e7eb;
+                }
+                
+                .info-item {
+                    display: flex;
+                    margin-bottom: 1rem;
+                }
+                
+                .info-item:last-child {
+                    margin-bottom: 0;
+                }
+                
+                .info-label {
+                    font-weight: 600;
+                    width: 150px;
+                }
+                
+                .info-value {
+                    flex: 1;
+                }
+                
+                .telegram-preview-container {
+                    background-color: #f8f9fa;
+                    border-radius: 10px;
+                    overflow: hidden;
+                    border: 1px solid #e5e7eb;
+                }
+                
+                .telegram-preview-header {
+                    background-color: #0088cc;
+                    color: white;
+                    padding: 0.8rem 1rem;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                
+                .telegram-preview-channel {
+                    font-weight: 600;
+                }
+                
+                .telegram-preview-channel i {
+                    margin-right: 0.5rem;
+                }
+                
+                .telegram-preview-time {
+                    font-size: 0.9rem;
+                    opacity: 0.8;
+                }
+                
+                .telegram-preview-content {
+                    padding: 1rem;
+                    white-space: pre-wrap;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                }
+                
+                .telegram-preview-footer {
+                    padding: 0.5rem 1rem;
+                    border-top: 1px solid #e5e7eb;
+                    display: flex;
+                    justify-content: flex-end;
+                }
+                
+                .telegram-preview-views {
+                    font-size: 0.9rem;
+                    color: #6b7280;
+                }
+                
+                .telegram-preview-views i {
+                    margin-right: 0.3rem;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Manipuladores para os botões de pré-visualização
+            const previewManualPost = document.getElementById('preview-manual-post');
+            const previewDailyReport = document.getElementById('preview-daily-report');
+            const previewWeeklyReport = document.getElementById('preview-weekly-report');
+            const previewContent = document.getElementById('preview-content');
+            const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+            
+            if (previewManualPost) {
+                previewManualPost.addEventListener('click', function() {
+                    const content = document.getElementById('manual-post-content').value;
+                    previewContent.textContent = content;
+                    previewModal.show();
+                });
+            }
+            
+            if (previewDailyReport) {
+                previewDailyReport.addEventListener('click', function() {
+                    const content = document.getElementById('daily-report-content').value;
+                    previewContent.textContent = content;
+                    previewModal.show();
+                });
+            }
+            
+            if (previewWeeklyReport) {
+                previewWeeklyReport.addEventListener('click', function() {
+                    const content = document.getElementById('weekly-report-content').value;
+                    previewContent.textContent = content;
+                    previewModal.show();
+                });
+            }
+            
+            // Manipuladores para os botões de geração de relatórios
+            const generateDailyReport = document.getElementById('generate-daily-report');
+            const generateWeeklyReport = document.getElementById('generate-weekly-report');
+            const dailyReportContent = document.getElementById('daily-report-content');
+            const weeklyReportContent = document.getElementById('weekly-report-content');
+            
+            if (generateDailyReport) {
+                generateDailyReport.addEventListener('click', function() {
+                    // Simular carregamento
+                    generateDailyReport.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+                    generateDailyReport.disabled = true;
+                    
+                    // Fazer requisição para a API
+                    fetch('/api/telegram/generate-report', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            type: 'daily'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && dailyReportContent) {
+                            dailyReportContent.value = data.report;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao gerar relatório:', error);
+                    })
+                    .finally(() => {
+                        // Restaurar botão
+                        generateDailyReport.innerHTML = '<i class="fas fa-sync-alt"></i> Gerar Relatório Diário';
+                        generateDailyReport.disabled = false;
+                    });
+                });
+            }
+            
+            if (generateWeeklyReport) {
+                generateWeeklyReport.addEventListener('click', function() {
+                    // Simular carregamento
+                    generateWeeklyReport.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+                    generateWeeklyReport.disabled = true;
+                    
+                    // Fazer requisição para a API
+                    fetch('/api/telegram/generate-report', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            type: 'weekly'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && weeklyReportContent) {
+                            weeklyReportContent.value = data.report;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao gerar relatório:', error);
+                    })
+                    .finally(() => {
+                        // Restaurar botão
+                        generateWeeklyReport.innerHTML = '<i class="fas fa-sync-alt"></i> Gerar Resumo Semanal';
+                        generateWeeklyReport.disabled = false;
+                    });
+                });
+            }
+            
+            // Manipuladores para os formulários de publicação
+            const manualPostForm = document.getElementById('manual-post-form');
+            const publishDailyReport = document.getElementById('publish-daily-report');
+            const publishWeeklyReport = document.getElementById('publish-weekly-report');
+            
+            if (manualPostForm) {
+                manualPostForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const content = document.getElementById('manual-post-content').value;
+                    
+                    // Fazer requisição para a API
+                    fetch('/api/telegram/post', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            content: content,
+                            type: 'manual'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Limpar formulário
+                            document.getElementById('manual-post-content').value = '';
+                            
+                            // Atualizar tabela de histórico
+                            updatePostsHistory();
+                            
+                            // Mostrar alerta de sucesso
+                            alert('Post publicado com sucesso!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao publicar post:', error);
+                        alert('Erro ao publicar post. Tente novamente.');
+                    });
+                });
+            }
+            
+            if (publishDailyReport) {
+                publishDailyReport.addEventListener('click', function() {
+                    const content = document.getElementById('daily-report-content').value;
+                    
+                    // Fazer requisição para a API
+                    fetch('/api/telegram/post', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            content: content,
+                            type: 'daily'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Atualizar tabela de histórico
+                            updatePostsHistory();
+                            
+                            // Mostrar alerta de sucesso
+                            alert('Relatório diário publicado com sucesso!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao publicar relatório:', error);
+                        alert('Erro ao publicar relatório. Tente novamente.');
+                    });
+                });
+            }
+            
+            if (publishWeeklyReport) {
+                publishWeeklyReport.addEventListener('click', function() {
+                    const content = document.getElementById('weekly-report-content').value;
+                    
+                    // Fazer requisição para a API
+                    fetch('/api/telegram/post', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            content: content,
+                            type: 'weekly'
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Atualizar tabela de histórico
+                            updatePostsHistory();
+                            
+                            // Mostrar alerta de sucesso
+                            alert('Resumo semanal publicado com sucesso!');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao publicar resumo:', error);
+                        alert('Erro ao publicar resumo. Tente novamente.');
+                    });
+                });
+            }
+            
+            // Função para atualizar a tabela de histórico de posts
+            function updatePostsHistory() {
+                const postsHistoryTable = document.getElementById('posts-history-table');
+                
+                // Fazer requisição para a API
+                fetch('/api/telegram/posts')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && postsHistoryTable) {
+                            // Limpar tabela
+                            postsHistoryTable.innerHTML = '';
+                            
+                            // Verificar se há posts
+                            if (data.posts.length === 0) {
+                                postsHistoryTable.innerHTML = `
+                                    <tr>
+                                        <td colspan="5" class="text-center">Nenhum post publicado ainda.</td>
+                                    </tr>
+                                `;
+                                return;
+                            }
+                            
+                            // Adicionar posts à tabela
+                            data.posts.forEach(post => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>${post.id}</td>
+                                    <td>${post.type}</td>
+                                    <td>${post.created_at}</td>
+                                    <td><span class="badge bg-success">${post.status}</span></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary view-post" data-post-id="${post.id}">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                `;
+                                postsHistoryTable.appendChild(row);
+                            });
+                            
+                            // Adicionar manipuladores para os botões de visualização
+                            document.querySelectorAll('.view-post').forEach(button => {
+                                button.addEventListener('click', function() {
+                                    const postId = this.getAttribute('data-post-id');
+                                    viewPost(postId, data.posts);
+                                });
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao obter histórico de posts:', error);
+                    });
+            }
+            
+            // Função para visualizar um post específico
+            function viewPost(postId, posts) {
+                const post = posts.find(p => p.id == postId);
+                
+                if (post) {
+                    previewContent.textContent = post.content;
+                    previewModal.show();
+                }
+            }
+            
+            // Inicializar visualização de posts existentes
+            document.querySelectorAll('.view-post').forEach(button => {
+                button.addEventListener('click', function() {
+                    const postId = this.getAttribute('data-post-id');
+                    
+                    // Fazer requisição para a API
+                    fetch('/api/telegram/posts')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                viewPost(postId, data.posts);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao obter posts:', error);
+                        });
+                });
+            });
+            
+            // Formulário de configuração do canal
+            const telegramConfigForm = document.getElementById('telegram-config-form');
+            
+            if (telegramConfigForm) {
+                telegramConfigForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const channelLink = document.getElementById('channel-link').value;
+                    
+                    // Em uma implementação real, aqui seria feita a atualização da configuração
+                    // Por enquanto, apenas simulamos uma atualização bem-sucedida
+                    
+                    alert('Configurações salvas com sucesso!');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

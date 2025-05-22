@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sugestões de Apostas - FC Statistics</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Barra de Navegação -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <span class="logo-text">FC Statistics</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/relatorios">Relatórios Diários</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Análise de Mercados
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=gols">Golos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=vencedor">Vencedor</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cantos">Cantos</a></li>
+                            <li><a class="dropdown-item" href="/analise-mercados?tipo=cartoes">Cartões</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/comparacao-odds">Comparação de Odds</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/estatisticas">Estatísticas Históricas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/sugestoes-apostas">Sugestões de Apostas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/telegram-config">Telegram</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/sobre">Sobre</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container mt-4">
+        <!-- Cabeçalho da Página -->
+        <div class="page-header">
+            <h1>Sugestões de Apostas</h1>
+            <p class="lead">Sugestões automáticas baseadas em análises estatísticas e probabilidades calculadas.</p>
+        </div>
+
+        <!-- Gerador de Sugestões -->
+        <div class="suggestions-generator-section">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-robot"></i> Gerador de Sugestões</h2>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> O gerador de sugestões utiliza dados estatísticos e probabilidades calculadas para identificar apostas com valor positivo esperado.
+                    </div>
+                    
+                    <form id="generate-suggestions-form">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="league-select" class="form-label">Liga:</label>
+                                    <select id="league-select" class="form-select">
+                                        <option value="all">Todas as Ligas</option>
+                                        <option value="premier-league">Premier League</option>
+                                        <option value="la-liga">La Liga</option>
+                                        <option value="serie-a">Serie A</option>
+                                        <option value="bundesliga">Bundesliga</option>
+                                        <option value="ligue-1">Ligue 1</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="market-select" class="form-label">Mercado:</label>
+                                    <select id="market-select" class="form-select">
+                                        <option value="all">Todos os Mercados</option>
+                                        <option value="1x2">Resultado Final (1X2)</option>
+                                        <option value="over-under">Over/Under Golos</option>
+                                        <option value="btts">Ambas Marcam</option>
+                                        <option value="corners">Cantos</option>
+                                        <option value="cards">Cartões</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="date-select" class="form-label">Data:</label>
+                                    <input type="date" id="date-select" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary" id="generate-btn">
+                                <i class="fas fa-sync-alt"></i> Gerar Sugestões
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sugestões de Apostas -->
+        <div class="betting-suggestions-section mt-4">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-chart-line"></i> Sugestões de Apostas</h2>
+                </div>
+                <div class="card-body">
+                    <div class="loading-container text-center d-none" id="loading-suggestions">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                        <p class="mt-2">Analisando dados e gerando sugestões...</p>
+                    </div>
+                    
+                    <div id="suggestions-container">
+                        <div class="alert alert-warning" id="no-suggestions-alert">
+                            <i class="fas fa-exclamation-triangle"></i> Nenhuma sugestão disponível. Utilize o gerador acima para criar sugestões baseadas em análises estatísticas.
+                        </div>
+                        
+                        <div class="row" id="suggestions-cards-container">
+                            <!-- As sugestões serão inseridas aqui via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Análises de Jogos -->
+        <div class="match-analyses-section mt-4">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-futbol"></i> Análises de Jogos</h2>
+                </div>
+                <div class="card-body">
+                    <div id="match-analyses-container">
+                        <div class="alert alert-info" id="no-analyses-alert">
+                            <i class="fas fa-info-circle"></i> As análises detalhadas dos jogos serão exibidas aqui após a geração de sugestões.
+                        </div>
+                        
+                        <div id="match-analyses-accordion">
+                            <!-- As análises serão inseridas aqui via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metodologia -->
+        <div class="methodology-section mt-4">
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-microscope"></i> Metodologia</h2>
+                </div>
+                <div class="card-body">
+                    <p>O FC Statistics utiliza uma metodologia baseada em dados estatísticos e probabilidades para identificar apostas com valor positivo esperado. Entenda como funciona:</p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="methodology-card">
+                                <div class="methodology-card-header">
+                                    <i class="fas fa-calculator"></i>
+                                    <h3>Cálculo de Probabilidades</h3>
+                                </div>
+                                <div class="methodology-card-body">
+                                    <p>Utilizamos modelos estatísticos avançados que consideram:</p>
+                                    <ul>
+                                        <li>Desempenho histórico das equipas</li>
+                                        <li>Confrontos diretos</li>
+                                        <li>Forma atual</li>
+                                        <li>Fatores contextuais (lesões, suspensões, etc.)</li>
+                                        <li>Tendências de mercado</li>
+                                    </ul>
+                                    <p>Estes fatores são combinados para calcular probabilidades precisas para cada resultado possível.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="methodology-card">
+                                <div class="methodology-card-header">
+                                    <i class="fas fa-percentage"></i>
+                                    <h3>Identificação de Valor</h3>
+                                </div>
+                                <div class="methodology-card-body">
+                                    <p>Uma aposta tem valor quando:</p>
+                                    <ol>
+                                        <li>A probabilidade calculada é maior que a probabilidade implícita na odd</li>
+                                        <li>A diferença é suficiente para superar a margem da casa de apostas</li>
+                                    </ol>
+                                    <p>Exemplo:</p>
+                                    <ul>
+                                        <li>Probabilidade calculada: 60%</li>
+                                        <li>Odd oferecida: 2.00 (probabilidade implícita: 50%)</li>
+                                        <li>Valor: +10% (diferença entre as probabilidades)</li>
+                                    </ul>
+                                    <p>Quanto maior o valor, maior a confiança na sugestão.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="methodology-disclaimer mt-4">
+                        <h4>Aviso Importante</h4>
+                        <p>Mesmo apostas com valor positivo esperado podem resultar em perdas no curto prazo. As sugestões são baseadas em probabilidades estatísticas e devem ser consideradas como parte de uma estratégia de longo prazo. Aposte sempre com responsabilidade e dentro dos seus limites financeiros.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer class="mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h4>FC Statistics</h4>
+                    <p>Análises estatísticas para apostas desportivas de futebol.</p>
+                    <div class="social-links">
+                        <a href="#" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <h4>Links Rápidos</h4>
+                    <ul class="footer-links">
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/relatorios">Relatórios Diários</a></li>
+                        <li><a href="/analise-mercados">Análise de Mercados</a></li>
+                        <li><a href="/comparacao-odds">Comparação de Odds</a></li>
+                        <li><a href="/estatisticas">Estatísticas Históricas</a></li>
+                        <li><a href="/sugestoes-apostas">Sugestões de Apostas</a></li>
+                        <li><a href="/telegram-config">Telegram</a></li>
+                        <li><a href="/sobre">Sobre</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h4>Aviso Legal</h4>
+                    <p>As análises e sugestões apresentadas são baseadas em dados estatísticos e não garantem resultados. Aposte com responsabilidade.</p>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-center">
+                    <p class="copyright">© 2025 FC Statistics. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Definir a data atual no seletor de data
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            const dateSelect = document.getElementById('date-select');
+            
+            if (dateSelect) {
+                dateSelect.value = formattedDate;
+            }
+            
+            // Manipulador para o formulário de geração de sugestões
+            const generateSuggestionsForm = document.getElementById('generate-suggestions-form');
+            const generateBtn = document.getElementById('generate-btn');
+            const loadingSuggestions = document.getElementById('loading-suggestions');
+            const noSuggestionsAlert = document.getElementById('no-suggestions-alert');
+            const suggestionsCardsContainer = document.getElementById('suggestions-cards-container');
+            const noAnalysesAlert = document.getElementById('no-analyses-alert');
+            const matchAnalysesAccordion = document.getElementById('match-analyses-accordion');
+            
+            if (generateSuggestionsForm) {
+                generateSuggestionsForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Mostrar carregamento
+                    if (loadingSuggestions) {
+                        loadingSuggestions.classList.remove('d-none');
+                    }
+                    
+                    if (noSuggestionsAlert) {
+                        noSuggestionsAlert.classList.add('d-none');
+                    }
+                    
+                    if (suggestionsCardsContainer) {
+                        suggestionsCardsContainer.innerHTML = '';
+                    }
+                    
+                    if (noAnalysesAlert) {
+                        noAnalysesAlert.classList.add('d-none');
+                    }
+                    
+                    if (matchAnalysesAccordion) {
+                        matchAnalysesAccordion.innerHTML = '';
+                    }
+                    
+                    if (generateBtn) {
+                        generateBtn.disabled = true;
+                        generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
+                    }
+                    
+                    // Simular tempo de processamento
+                    setTimeout(() => {
+                        // Fazer requisição para a API
+                        fetch('/api/betting/generate-suggestions', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                matches: [
+                                    {home: 'Manchester City', away: 'Liverpool', league: 'Premier League', time: '20:45'},
+                                    {home: 'Barcelona', away: 'Real Madrid', league: 'La Liga', time: '20:45'},
+                                    {home: 'Juventus', away: 'Inter', league: 'Serie A', time: '20:45'}
+                                ]
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Ocultar carregamento
+                                if (loadingSuggestions) {
+                                    loadingSuggestions.classList.add('d-none');
+                                }
+                                
+                                // Exibir sugestões
+                                displaySuggestions(data.suggestions);
+                                
+                                // Exibir análises de jogos
+                                displayMatchAnalyses(data.match_analyses);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao gerar sugestões:', error);
+                            
+                            // Ocultar carregamento
+                            if (loadingSuggestions) {
+                                loadingSuggestions.classList.add('d-none');
+                            }
+                            
+                            // Mostrar alerta de erro
+                            if (noSuggestionsAlert) {
+                                noSuggestionsAlert.classList.remove('d-none');
+                                noSuggestionsAlert.classList.remove('alert-warning');
+                                noSuggestionsAlert.classList.add('alert-danger');
+                                noSuggestionsAlert.innerHTML = '<i class="fas fa-exclamation-circle"></i> Erro ao gerar sugestões. Tente novamente.';
+                            }
+                        })
+                        .finally(() => {
+                            // Restaurar botão
+                            if (generateBtn) {
+                                generateBtn.disabled = false;
+                                generateBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Gerar Sugestões';
+                            }
+                        });
+                    }, 1500);
+                });
+            }
+            
+            // Função para exibir sugestões
+            function displaySuggestions(suggestions) {
+                if (!suggestionsCardsContainer) return;
+                
+                if (!suggestions || suggestions.length === 0) {
+                    if (noSuggestionsAlert) {
+                        noSuggestionsAlert.classList.remove('d-none');
+                    }
+                    return;
+                }
+                
+                // Limpar container
+                suggestionsCardsContainer.innerHTML = '';
+                
+                // Adicionar cards de sugestões
+                suggestions.forEach(suggestion => {
+                    const confidenceStars = '⭐'.repeat(suggestion.confidence);
+                    
+                    const card = document.createElement('div');
+                    card.className = 'col-md-4 mb-4';
+                    card.innerHTML = `
+                        <div class="suggestion-card">
+                            <div class="suggestion-card-header">
+                                <div class="suggestion-match">${suggestion.match}</div>
+                                <div class="suggestion-value">Valor: +${suggestion.value}%</div>
+                            </div>
+                            <div class="suggestion-card-body">
+                                <div class="suggestion-market">${suggestion.market}</div>
+                                <div class="suggestion-selection">${suggestion.selection}</div>
+                                <div class="suggestion-odds">
+                                    <div class="suggestion-odd">Odd: ${suggestion.odd}</div>
+                                    <div class="suggestion-bookmaker">${suggestion.bookmaker}</div>
+                                </div>
+                                <div class="suggestion-confidence">${confidenceStars}</div>
+                            </div>
+                            <div class="suggestion-card-footer">
+                                <div class="suggestion-justification">
+                                    <strong>Justificativa:</strong> ${suggestion.justification}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    suggestionsCardsContainer.appendChild(card);
+                });
+            }
+            
+            // Função para exibir análises de jogos
+            function displayMatchAnalyses(analyses) {
+                if (!matchAnalysesAccordion) return;
+                
+                if (!analyses || analyses.length === 0) {
+                    if (noAnalysesAlert) {
+                        noAnalysesAlert.classList.remove('d-none');
+                    }
+                    return;
+                }
+                
+                // Limpar container
+                matchAnalysesAccordion.innerHTML = '';
+                
+                // Adicionar acordeões de análises
+                analyses.forEach((analysis, index) => {
+                    const accordionItem = document.createElement('div');
+                    accordionItem.className = 'accordion-item';
+                    
+                    const headerId = `heading-${index}`;
+                    const collapseId = `collapse-${index}`;
+                    
+                    accordionItem.innerHTML = `
+                        <h2 class="accordion-header" id="${headerId}">
+                            <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${index === 0 ? 'true' : 'false'}" aria-controls="${collapseId}">
+                                <div class="match-analysis-header">
+                                    <div class="match-teams">${analysis.home} vs ${analysis.away}</div>
+                                    <div class="match-info">
+                                        <span class="match-league">${analysis.league}</span>
+                                        <span class="match-time">${analysis.time}</span>
+                                    </div>
+                                </div>
+                            </button>
+                        </h2>
+                        <div id="${collapseId}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" aria-labelledby="${headerId}" data-bs-parent="#match-analyses-accordion">
+                            <div class="accordion-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="analysis-section">
+                                            <h4>Probabilidades Calculadas</h4>
+                                            <div class="probabilities-container">
+                                                <div class="probability-item">
+                                                    <div class="probability-label">Vitória ${analysis.home}:</div>
+                                                    <div class="probability-value">${analysis.probabilities.home_win}%</div>
+                                                </div>
+                                                <div class="probability-item">
+                                                    <div class="probability-label">Empate:</div>
+                                                    <div class="probability-value">${analysis.probabilities.draw}%</div>
+                                                </div>
+                                                <div class="probability-item">
+                                                    <div class="probability-label">Vitória ${analysis.away}:</div>
+                                                    <div class="probability-value">${analysis.probabilities.away_win}%</div>
+                                                </div>
+                                                <div class="probability-item">
+                                                    <div class="probability-label">Ambas Marcam:</div>
+                                                    <div class="probability-value">${analysis.probabilities.btts}%</div>
+                                                </div>
+                                                <div class="probability-item">
+                                                    <div class="probability-label">Over 2.5 Golos:</div>
+                                                    <div class="probability-value">${analysis.probabilities.over25}%</div>
+                                                </div>
+                                                <div class="probability-item">
+                                                    <div class="probability-label">Média de Cantos:</div>
+                                                    <div class="probability-value">${analysis.probabilities.corners_avg}</div>
+                                                </div>
+                                                <div class="probability-item">
+                                                    <div class="probability-label">Média de Cartões:</div>
+                                                    <div class="probability-value">${analysis.probabilities.cards_avg}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="analysis-section">
+                                            <h4>Melhores Odds</h4>
+                                            <div class="odds-container">
+                                                <h5>Resultado Final (1X2)</h5>
+                                                <div class="odds-table">
+                                                    <div class="odds-row odds-header">
+                                                        <div class="odds-cell">Seleção</div>
+                                                        <div class="odds-cell">Melhor Odd</div>
+                                                        <div class="odds-cell">Casa de Apostas</div>
+                                                    </div>
+                                                    <div class="odds-row">
+                                                        <div class="odds-cell">1 (${analysis.home})</div>
+                                                        <div class="odds-cell">${getBestOdd(analysis.odds['Resultado Final (1X2)'], '1')}</div>
+                                                        <div class="odds-cell">${getBestBookmaker(analysis.odds['Resultado Final (1X2)'], '1')}</div>
+                                                    </div>
+                                                    <div class="odds-row">
+                                                        <div class="odds-cell">X (Empate)</div>
+                                                        <div class="odds-cell">${getBestOdd(analysis.odds['Resultado Final (1X2)'], 'X')}</div>
+                                                        <div class="odds-cell">${getBestBookmaker(analysis.odds['Resultado Final (1X2)'], 'X')}</div>
+                                                    </div>
+                                                    <div class="odds-row">
+                                                        <div class="odds-cell">2 (${analysis.away})</div>
+                                                        <div class="odds-cell">${getBestOdd(analysis.odds['Resultado Final (1X2)'], '2')}</div>
+                                                        <div class="odds-cell">${getBestBookmaker(analysis.odds['Resultado Final (1X2)'], '2')}</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <h5 class="mt-3">Over/Under Golos</h5>
+                                                <div class="odds-table">
+                                                    <div class="odds-row odds-header">
+                                                        <div class="odds-cell">Seleção</div>
+                                                        <div class="odds-cell">Melhor Odd</div>
+                                                        <div class="odds-cell">Casa de Apostas</div>
+                                                    </div>
+                                                    <div class="odds-row">
+                                                        <div class="odds-cell">Over 2.5</div>
+                                                        <div class="odds-cell">${getBestOdd(analysis.odds['Over/Under Golos'], 'Over 2.5')}</div>
+                                                        <div class="odds-cell">${getBestBookmaker(analysis.odds['Over/Under Golos'], 'Over 2.5')}</div>
+                                                    </div>
+                                                    <div class="odds-row">
+                                                        <div class="odds-cell">Under 2.5</div>
+                                                        <div class="odds-cell">${getBestOdd(analysis.odds['Over/Under Golos'], 'Under 2.5')}</div>
+                                                        <div class="odds-cell">${getBestBookmaker(analysis.odds['Over/Under Golos'], 'Under 2.5')}</div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <h5 class="mt-3">Ambas Marcam</h5>
+                                                <div class="odds-table">
+                                                    <div class="odds-row odds-header">
+                                                        <div class="odds-cell">Seleção</div>
+                                                        <div class="odds-cell">Melhor Odd</div>
+                                                        <div class="odds-cell">Casa de Apostas</div>
+                                                    </div>
+                                                    <div class="odds-row">
+                                                        <div class="odds-cell">Sim</div>
+                                                        <div class="odds-cell">${getBestOdd(analysis.odds['Ambas Marcam'], 'Sim')}</div>
+                                                        <div class="odds-cell">${getBestBookmaker(analysis.odds['Ambas Marcam'], 'Sim')}</div>
+                                                    </div>
+                                                    <div class="odds-row">
+                                                        <div class="odds-cell">Não</div>
+                                                        <div class="odds-cell">${getBestOdd(analysis.odds['Ambas Marcam'], 'Não')}</div>
+                                                        <div class="odds-cell">${getBestBookmaker(analysis.odds['Ambas Marcam'], 'Não')}</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    matchAnalysesAccordion.appendChild(accordionItem);
+                });
+            }
+            
+            // Função para obter a melhor odd
+            function getBestOdd(oddsData, selection) {
+                let bestOdd = 0;
+                
+                for (const bookmaker in oddsData) {
+                    const odd = oddsData[bookmaker][selection];
+                    if (odd > bestOdd) {
+                        bestOdd = odd;
+                    }
+                }
+                
+                return bestOdd;
+            }
+            
+            // Função para obter a casa de apostas com a melhor odd
+            function getBestBookmaker(oddsData, selection) {
+                let bestOdd = 0;
+                let bestBookmaker = '';
+                
+                for (const bookmaker in oddsData) {
+                    const odd = oddsData[bookmaker][selection];
+                    if (odd > bestOdd) {
+                        bestOdd = odd;
+                        bestBookmaker = bookmaker;
+                    }
+                }
+                
+                return bestBookmaker;
+            }
+            
+            // Adicionar estilos específicos para a página
+            const style = document.createElement('style');
+            style.textContent = `
+                .page-header {
+                    margin-bottom: 2rem;
+                }
+                
+                .page-header h1 {
+                    color: var(--primary-color);
+                    font-weight: 700;
+                }
+                
+                .card {
+                    border: none;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    overflow: hidden;
+                }
+                
+                .card-header {
+                    background-color: #f8f9fa;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding: 1rem 1.5rem;
+                }
+                
+                .card-header h2 {
+                    margin: 0;
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: var(--primary-color);
+                    display: flex;
+                    align-items: center;
+                }
+                
+                .card-header h2 i {
+                    margin-right: 0.5rem;
+                }
+                
+                .card-body {
+                    padding: 1.5rem;
+                }
+                
+                .suggestion-card {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    overflow: hidden;
+                    height: 100%;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+                
+                .suggestion-card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+                }
+                
+                .suggestion-card-header {
+                    background-color: #f8f9fa;
+                    padding: 1rem;
+                    border-bottom: 1px solid #e5e7eb;
+                }
+                
+                .suggestion-match {
+                    font-weight: 600;
+                    font-size: 1.1rem;
+                    margin-bottom: 0.3rem;
+                }
+                
+                .suggestion-value {
+                    color: var(--success-color);
+                    font-weight: 600;
+                }
+                
+                .suggestion-card-body {
+                    padding: 1rem;
+                }
+                
+                .suggestion-market {
+                    color: #6b7280;
+                    font-size: 0.9rem;
+                    margin-bottom: 0.3rem;
+                }
+                
+                .suggestion-selection {
+                    font-weight: 700;
+                    font-size: 1.2rem;
+                    margin-bottom: 0.5rem;
+                    color: var(--primary-color);
+                }
+                
+                .suggestion-odds {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .suggestion-odd {
+                    font-weight: 600;
+                }
+                
+                .suggestion-bookmaker {
+                    color: #6b7280;
+                    font-size: 0.9rem;
+                }
+                
+                .suggestion-confidence {
+                    color: #f59e0b;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .suggestion-card-footer {
+                    background-color: #f8f9fa;
+                    padding: 1rem;
+                    border-top: 1px solid #e5e7eb;
+                    font-size: 0.9rem;
+                }
+                
+                .match-analysis-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    width: 100%;
+                }
+                
+                .match-teams {
+                    font-weight: 600;
+                }
+                
+                .match-info {
+                    display: flex;
+                    gap: 1rem;
+                }
+                
+                .match-league {
+                    color: var(--primary-color);
+                }
+                
+                .match-time {
+                    color: #6b7280;
+                }
+                
+                .analysis-section {
+                    margin-bottom: 1.5rem;
+                }
+                
+                .analysis-section h4 {
+                    color: var(--primary-color);
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    margin-bottom: 1rem;
+                    border-bottom: 1px solid #e5e7eb;
+                    padding-bottom: 0.5rem;
+                }
+                
+                .analysis-section h5 {
+                    color: var(--primary-color);
+                    font-size: 1rem;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                }
+                
+                .probabilities-container {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+                
+                .probability-item {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 0.5rem;
+                    background-color: #f8f9fa;
+                    border-radius: 5px;
+                }
+                
+                .probability-label {
+                    font-weight: 500;
+                }
+                
+                .probability-value {
+                    font-weight: 600;
+                }
+                
+                .odds-table {
+                    display: flex;
+                    flex-direction: column;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 5px;
+                    overflow: hidden;
+                }
+                
+                .odds-row {
+                    display: flex;
+                }
+                
+                .odds-header {
+                    background-color: #f8f9fa;
+                    font-weight: 600;
+                }
+                
+                .odds-cell {
+                    flex: 1;
+                    padding: 0.5rem;
+                    border-bottom: 1px solid #e5e7eb;
+                    border-right: 1px solid #e5e7eb;
+                }
+                
+                .odds-cell:last-child {
+                    border-right: none;
+                }
+                
+                .odds-row:last-child .odds-cell {
+                    border-bottom: none;
+                }
+                
+                .methodology-card {
+                    background-color: white;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    overflow: hidden;
+                    height: 100%;
+                    margin-bottom: 1rem;
+                }
+                
+                .methodology-card-header {
+                    background-color: #f8f9fa;
+                    padding: 1rem;
+                    border-bottom: 1px solid #e5e7eb;
+                    display: flex;
+                    align-items: center;
+                }
+                
+                .methodology-card-header i {
+                    margin-right: 0.5rem;
+                    color: var(--primary-color);
+                }
+                
+                .methodology-card-header h3 {
+                    margin: 0;
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    color: var(--primary-color);
+                }
+                
+                .methodology-card-body {
+                    padding: 1rem;
+                }
+                
+                .methodology-disclaimer {
+                    background-color: #f8f9fa;
+                    border-radius: 10px;
+                    padding: 1rem;
+                    border-left: 4px solid var(--warning-color);
+                }
+                
+                .methodology-disclaimer h4 {
+                    color: var(--warning-color);
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>
